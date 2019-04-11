@@ -1,0 +1,10 @@
+django
+graphene
+graphene-django
+django-graphql-jwt
+django-taggit
+django-widget-tweaks
+django-filter
+transliterate
+gunicorn
+psycopg2-binary
