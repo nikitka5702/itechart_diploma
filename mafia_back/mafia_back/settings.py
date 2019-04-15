@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'channels',
     'taggit',
 
-    'game'
+    'game',
+    'custom_cards',
 ]
 
 MIDDLEWARE = [
@@ -137,3 +138,6 @@ AUTHENTICATION_BACKENDS = [
 
 
 ASGI_APPLICATION = 'mafia_back.routing.application'
+
+CARD_PIXEL_WIDTH = 100
+CARD_PIXEL_HEIGHT = 200
