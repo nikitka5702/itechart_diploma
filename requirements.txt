@@ -1,4 +1,6 @@
 django
+channels
+pypiwin32
 graphene
 graphene-django
 django-graphql-jwt
