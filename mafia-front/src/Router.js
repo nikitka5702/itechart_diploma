@@ -8,7 +8,7 @@ const Router = props => {
   return (
     <Switch>
       <Route exact path='/' component={Index} />
-      <Route path='login' component={Login} />
+      <Route path='/login' component={Login} />
     </Switch>
   )
 }
