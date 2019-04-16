@@ -25,7 +25,7 @@ class GameType(DjangoObjectType):
 
 class GamePlayersType(DjangoObjectType):
     class Meta:
-        models = GamePlayers
+        model = GamePlayers
 
 
 class CreateUser(graphene.Mutation):

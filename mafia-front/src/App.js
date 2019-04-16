@@ -3,11 +3,11 @@ import React, { Component, Fragment } from 'react';
 import 'materialize-css/dist/css/materialize.min.css'
 import 'materialize-css/dist/js/materialize'
 
-import './App.css'
-
 import Header from './components/layout/Header'
-import Main from './components/layout/Main'
 import Footer from './components/layout/Footer'
+import Router from './Router'
+
+import './App.css'
 
 class App extends Component {
   render() {
@@ -17,9 +17,9 @@ class App extends Component {
           <Header />
         </header>
         <main>
-          <Main />
+          <Router {...this.props} />
         </main>
-        <footer>
+        <footer className="page-footer">
           <Footer />
         </footer>
       </Fragment>

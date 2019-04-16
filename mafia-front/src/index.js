@@ -1,41 +1,44 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import ApolloClient from 'apollo-boost'
-import ApolloProvider from 'react-apollo'
-import createHttpLink from 'apollo-link-http'
-import setContext from 'apollo-link-context'
-import InMemoryCache from 'apollo-cache-inmemory'
+import { BrowserRouter } from 'react-router-dom'
+
+import ApolloClient from 'apollo-client'
+import { ApolloProvider } from 'react-apollo'
+import { createHttpLink } from 'apollo-link-http'
+import { ApolloLink, concat } from 'apollo-link'
+import { InMemoryCache } from 'apollo-cache-inmemory'
 
 import App from './App'
 
 import './index.css'
 
 const httpLink = createHttpLink({
-    uri: '/graphql',
+  uri: '/graphql',
 })
 
-const authLink = setContext((_, { headers }) => {
-    const token = localStorage.getItem('token')
-    return {
-        headers: {
-            ...headers,
-            authorization: token ? `Bearer ${token}` : '',
-        }
+const authMiddleware = new ApolloLink((operation, forward) => {
+  const token = localStorage.getItem('token')
+  operation.setContext({
+    headers: {
+      authorization: token ? `JWT ${token}` : '',
     }
+  })
+  
+  return forward(operation);
 })
 
 const client = new ApolloClient({
-    link: authLink.concat(httpLink),
-    cache: new InMemoryCache(),
+  link: concat(authMiddleware, httpLink),
+  cache: new InMemoryCache(),
 })
 
-
 const app = (
-    <ApolloProvider client={client}>
-        <App />
-    </ApolloProvider>
+  <ApolloProvider client={client}>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </ApolloProvider>
 )
-
 
 ReactDOM.render(app, document.getElementById('root'));
