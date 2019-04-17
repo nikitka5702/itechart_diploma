@@ -1,0 +1,9 @@
+.card-contents {
+  padding: 0;
+}
+
+.player-name {
+  font-size: 18px;
+  font-weight: 300;
+  margin-left: 10px;
+}
