@@ -137,7 +137,6 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend'
 ]
 
-
 ASGI_APPLICATION = 'mafia_back.routing.application'
 
 CORS_ORIGIN_ALLOW_ALL = DEBUG

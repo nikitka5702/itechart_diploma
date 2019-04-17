@@ -92,6 +92,7 @@ class DeleteGame(graphene.Mutation):
 
 class Query(graphene.ObjectType):
     me = graphene.Field(UserType)
+    statistic = graphene.Field(StatisticType)
     games = graphene.List(
         GameType,
         search=graphene.String(),
@@ -104,6 +105,12 @@ class Query(graphene.ObjectType):
         if user.is_anonymous:
             raise GraphQLError('Not logged in!')
         return user
+
+    def resolve_statistic(self, info, **kwargs):
+        user = info.context.user
+        if user.is_anonymous:
+            raise GraphQLError('Not logged in!')
+        return user.statistics.first()
 
     def resolve_games(self, info, search=None, first=None, skip=None, **kwargs):
         qs = Game.objects.all()
