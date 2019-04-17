@@ -1,0 +1,13 @@
+main {
+  display: flex;
+  align-items: center;
+}
+
+.row {
+  margin-bottom: 0;
+}
+
+.btn-floating {
+    right: 10px;
+    top: 5px;
+}
