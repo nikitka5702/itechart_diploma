@@ -12,8 +12,12 @@ class Header extends Component {
           <li><NavLink to="profile">Profile</NavLink></li>
           <li><a href="#" onClick={(e) => {localStorage.removeItem('token'); this.props.history.push('/')}}>Logout</a></li>
         </Fragment>
-      ) : 
-      <li><NavLink to="login">Login</NavLink></li>
+      ) : (
+        <Fragment>
+          <li><NavLink to="login">Login</NavLink></li>
+          <li><NavLink to="reg">Register</NavLink></li>
+        </Fragment>
+      )
     return (
       <Fragment>
         <nav>

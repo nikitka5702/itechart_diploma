@@ -27,12 +27,18 @@ class Game(models.Model):
 
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_games')
     name = models.CharField(max_length=255)
-    players = models.IntegerField()
-    mafia_percentage = models.IntegerField(
-        default=20,
+    players = models.IntegerField(
+        default=5,
         validators=[
-            MinValueValidator(20),
-            MaxValueValidator(100)
+            MinValueValidator(5),
+            MaxValueValidator(10)
+        ]
+    )
+    people_as_mafia = models.IntegerField(
+        default=2,
+        validators=[
+            MinValueValidator(2),
+            MaxValueValidator(4)
         ]
     )
     finished = models.BooleanField(default=False)

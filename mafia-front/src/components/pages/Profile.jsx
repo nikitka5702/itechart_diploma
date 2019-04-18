@@ -14,8 +14,7 @@ query {
     asMafia
     asCitizen
   }
-}
-`
+}`
 
 export default class Profile extends Component {
   render() {
