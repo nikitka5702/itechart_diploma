@@ -7,6 +7,8 @@ django-graphql-jwt
 django-taggit
 django-widget-tweaks
 django-filter
+django-cors-headers
+Pillow
 transliterate
 gunicorn
 psycopg2-binary

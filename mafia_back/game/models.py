@@ -20,6 +20,18 @@ class Statistic(models.Model):
     as_citizen = models.IntegerField(default=0, verbose_name='Кол-во игр за мирных')
 
 
+class CardSet(models.Model):
+    extended = models.BooleanField(default=False)
+
+    # Classic
+    citizen = models.ImageField(upload_to='cards/%Y/%m/%d')
+    mafia = models.ImageField(upload_to='cards/%Y/%m/%d')
+
+    # Extended
+    sheriff = models.ImageField(upload_to='cards/%Y/%m/%d')
+    doctor = models.ImageField(upload_to='cards/%Y/%m/%d')
+
+
 class Game(models.Model):
     class Meta:
         verbose_name = 'Игра'
@@ -27,6 +39,10 @@ class Game(models.Model):
 
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_games')
     name = models.CharField(max_length=255)
+    extended = models.BooleanField(default=False)
+    card_set = models.OneToOneField(CardSet, on_delete=models.CASCADE, null=True)
+
+    # Classic
     players = models.IntegerField(
         default=5,
         validators=[
@@ -41,6 +57,23 @@ class Game(models.Model):
             MaxValueValidator(4)
         ]
     )
+
+    # Extended
+    people_as_doctor = models.IntegerField(
+        default=1,
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(2)
+        ]
+    )
+    people_as_sheriff = models.IntegerField(
+        default=1,
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(2)
+        ]
+    )
+
     finished = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now)
 
