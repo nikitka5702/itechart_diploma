@@ -28,8 +28,8 @@ class CardSet(models.Model):
     mafia = models.ImageField(upload_to='cards/%Y/%m/%d')
 
     # Extended
-    sheriff = models.ImageField(upload_to='cards/%Y/%m/%d')
-    doctor = models.ImageField(upload_to='cards/%Y/%m/%d')
+    sheriff = models.ImageField(upload_to='cards/%Y/%m/%d', null=True, blank=True)
+    doctor = models.ImageField(upload_to='cards/%Y/%m/%d', null=True, blank=True)
 
 
 class Game(models.Model):

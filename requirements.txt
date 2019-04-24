@@ -12,3 +12,4 @@ Pillow
 transliterate
 gunicorn
 psycopg2-binary
+graphene-file-upload
