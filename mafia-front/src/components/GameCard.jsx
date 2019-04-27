@@ -41,7 +41,6 @@ export default class GameCard extends Component {
     ) : (
       <Fragment />
     )
-    console.log(delGame)
     return (
       <div className="card">
         <div className="card-content">

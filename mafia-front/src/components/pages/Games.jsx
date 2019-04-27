@@ -56,25 +56,32 @@ export default class Games extends Component {
                     <div className="row">
                       <MaterializeField type="text" name="q" component="p" title="Search" prefix="search" />
                     </div>
-                    <div className="row">
-                      <Query query={GAMES} variables={{q: this.state.q, first: this.state.first, skip: this.state.skip}}>
-                        {({ loading, error, data, refetch }) => {
-                          if (loading) return (
-                            <div className="progress">
-                              <div className="indeterminate"></div>
-                            </div>
-                          )
-                          if (error) return (
-                            `Error! ${error.message}`
-                          )
+                    <Query query={GAMES} variables={{q: this.state.q, first: this.state.first, skip: this.state.skip}}>
+                      {({ loading, error, data, refetch }) => {
+                        if (loading) return (
+                          <div className="progress">
+                            <div className="indeterminate"></div>
+                          </div>
+                        )
+                        if (error) return (
+                          `Error! ${error.message}`
+                        )
 
-                          data = data.games
+                        data = data.games
 
-                          return data.map((d, idx) => (
+                        return data.map((d, idx) => (
+                          <div className="row">
                             <GameCard obj={d} refetch={refetch} key={d.id} />
-                          ))
-                        }}
-                      </Query>
+                          </div>
+                        ))
+                      }}
+                    </Query>
+                    <div className="row">
+                      <ul className="pagination center-align">
+                        <li className={this.state.page === 1 ? "disabled" : "enabled"}><a href="#!" onClick={(e) => this.prevPage()}><i className="material-icons">chevron_left</i></a></li>
+                        <li className="active"><a href="#!">{this.state.page}</a></li>
+                        <li className="waves-effect"><a href="#!" onClick={(e) => this.nextPage()}><i className="material-icons">chevron_right</i></a></li>
+                      </ul>
                     </div>
                   </div>
                 </div>
