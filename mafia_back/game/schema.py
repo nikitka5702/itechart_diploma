@@ -59,19 +59,27 @@ class CreateGame(graphene.Mutation):
     game = graphene.Field(GameType)
 
     class Arguments:
-        name = graphene.String()
-        players = graphene.Int()
-        percentage = graphene.Int()
+        name = graphene.NonNull(graphene.String)
+        extended = graphene.NonNull(graphene.Boolean)
+        card_set = graphene.NonNull(graphene.Int)
+        players = graphene.NonNull(graphene.Int)
+        as_mafia = graphene.NonNull(graphene.Int)
+        as_doctor = graphene.Int()
+        as_sheriff = graphene.Int()
 
-    def mutate(self, info, name, players, percentage):
+    def mutate(self, info, name, extended, card_set, players, as_mafia, as_doctor, as_sheriff):
         user = info.context.user
         if user.is_anonymous:
             raise GraphQLError('You must be logged in!')
         game = Game.objects.create(
             creator=user,
             name=name,
+            extended=extended,
+            card_set_id=card_set,
             players=players,
-            mafia_percentage=percentage
+            people_as_mafia=as_mafia,
+            people_as_doctor=as_doctor,
+            people_as_sheriff=as_sheriff
         )
 
         return CreateGame(game=game)
