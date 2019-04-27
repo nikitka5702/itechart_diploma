@@ -49,7 +49,7 @@ class CreateUser(graphene.Mutation):
         email = graphene.String()
 
     @staticmethod
-    def get_submit_url(user_id):
+    def get_submit_url(user_id, host):
         activation_source = None
         try:
             activation_source = ActivationSource.objects.get(user_id=user_id)
@@ -57,23 +57,23 @@ class CreateUser(graphene.Mutation):
             activation_source = ActivationSource(user_id=user_id, key=str(uuid.uuid4()))
             activation_source.save()
         finally:
-            return f"{settings.SITE_URL}/activation/?token={activation_source.key}"
+            return f"{host}/activation/?token={activation_source.key}"
 
     @staticmethod
-    def get_html_email_content(user_id):
+    def get_html_email_content(user_id, host):
         return f"""
         Hello! This mail is used to registration to the Mafia The Game (c) <br>
-        go to <a href="{CreateUser.get_submit_url(user_id)}">here</a> to submit form
+        go to <a href="{CreateUser.get_submit_url(user_id, host)}">this link</a> to confirm registration <br>
         
-        (row link: <b>{CreateUser.get_submit_url(user_id)}</b> )
+        (row link: <b>{CreateUser.get_submit_url(user_id, host)}</b> )
         """
 
     @staticmethod
-    def get_raw_email_content(user_id):
+    def get_raw_email_content(user_id, host):
         return f"""
         Hello! This mail is used to registration to the Mafia The Game (c)
         Use link to approve your registration:
-        {CreateUser.get_submit_url(user_id)}
+        {CreateUser.get_submit_url(user_id, host)}
         """
 
     def mutate(self, info, username, password, email):
@@ -90,9 +90,9 @@ class CreateUser(graphene.Mutation):
         user.set_password(password)
         user.save()
 
-        send_mail("registration", CreateUser.get_raw_email_content(user.id),
+        send_mail("registration", CreateUser.get_raw_email_content(user.id, info.context.headers['Host']),
                   settings.EMAIL_HOST_USER, (email,),
-                  html_message=CreateUser.get_html_email_content(user.id))
+                  html_message=CreateUser.get_html_email_content(user.id, info.context.headers['Host']))
 
         Statistic.objects.create(user=user)
 
