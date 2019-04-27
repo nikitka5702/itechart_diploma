@@ -4,7 +4,7 @@ from django.db.models import Q, Avg
 from graphene_django import DjangoObjectType
 from graphql import GraphQLError
 
-from .models import Statistic, Game, GamePlayers
+from .models import Statistic, CardSet, Game, GamePlayer
 
 
 class UserType(DjangoObjectType):
@@ -18,6 +18,11 @@ class StatisticType(DjangoObjectType):
         model = Statistic
 
 
+class CardSetType(DjangoObjectType):
+    class Meta:
+        model = CardSet
+
+
 class GameType(DjangoObjectType):
     class Meta:
         model = Game
@@ -25,7 +30,7 @@ class GameType(DjangoObjectType):
 
 class GamePlayersType(DjangoObjectType):
     class Meta:
-        model = GamePlayers
+        model = GamePlayer
 
 
 class CreateUser(graphene.Mutation):
@@ -113,7 +118,7 @@ class Query(graphene.ObjectType):
         return user.statistics.first()
 
     def resolve_games(self, info, search=None, first=None, skip=None, **kwargs):
-        qs = Game.objects.all()
+        qs = Game.objects.filter(Q(finished=False))
         if search:
             qs = qs.filter(Q(name__icontains=search))
         if skip:

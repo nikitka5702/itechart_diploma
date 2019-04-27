@@ -13,6 +13,8 @@ query {
     gamesLost
     asMafia
     asCitizen
+    asSheriff
+    asDoctor
   }
 }`
 
@@ -42,8 +44,12 @@ export default class Profile extends Component {
                       <li className="collection-item"><span className="badge">{data.gamesCount}</span>Games</li>
                       <li className="collection-item"><span className="badge">{data.gamesWon}</span>Wins</li>
                       <li className="collection-item"><span className="badge">{data.gamesLost}</span>Loses</li>
+                      <li className="collection-item"><center><b>Classic</b></center></li>
                       <li className="collection-item"><span className="badge">{data.asMafia}</span>Games as Mafia</li>
                       <li className="collection-item"><span className="badge">{data.asCitizen}</span>Games as Citizen</li>
+                      <li className="collection-item"><center><b>Extended</b></center></li>
+                      <li className="collection-item"><span className="badge">{data.asSheriff}</span>Games as Sheriff</li>
+                      <li className="collection-item"><span className="badge">{data.asDoctor}</span>Games as Doctor</li>
                     </ul>
                   </div>
                 </div>
