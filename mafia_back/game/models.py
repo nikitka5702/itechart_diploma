@@ -81,3 +81,8 @@ class Game(models.Model):
 class GamePlayers(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='connected_players')
     player = models.ForeignKey(User, on_delete=models.CASCADE, related_name='games')
+
+
+class ActivationSource(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    key = models.CharField(max_length=256)

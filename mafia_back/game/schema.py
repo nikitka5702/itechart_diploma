@@ -1,13 +1,16 @@
 import re
 
 import graphene
+import uuid
+from django.conf import settings
 from django.contrib.auth.models import User
-from django.db.models import Q, Avg
+from django.core.mail import send_mail
+from django.db.models import Q
 from graphene_django import DjangoObjectType
 from graphene_file_upload.scalars import Upload
 from graphql import GraphQLError
 
-from .models import Statistic, Game, GamePlayers, CardSet
+from .models import Statistic, Game, GamePlayers, CardSet, ActivationSource
 
 
 class CardType(DjangoObjectType):
@@ -38,26 +41,58 @@ class GamePlayersType(DjangoObjectType):
 
 class CreateUser(graphene.Mutation):
     user = graphene.Field(UserType)
+    EMAIL_PATTERN = r"^[a-zA-Z0-9_]+@[a-zA-Z0-9_]+\.[A-Za-z]{2}$"
 
     class Arguments:
         username = graphene.String()
         password = graphene.String()
         email = graphene.String()
 
+    @staticmethod
+    def get_submit_url(user_id):
+        activation_source = None
+        try:
+            activation_source = ActivationSource.objects.get(user_id=user_id)
+        except ActivationSource.DoesNotExist:
+            activation_source = ActivationSource(user_id=user_id, key=str(uuid.uuid4()))
+            activation_source.save()
+        finally:
+            return f"{settings.SITE_URL}/activation/?token={activation_source.key}"
+
+    @staticmethod
+    def get_html_email_content(user_id):
+        return f"""
+        Hello! This mail is used to registration to the Mafia The Game (c) <br>
+        go to <a href="{CreateUser.get_submit_url(user_id)}">here</a> to submit form
+        
+        (row link: <b>{CreateUser.get_submit_url(user_id)}</b> )
+        """
+
+    @staticmethod
+    def get_raw_email_content(user_id):
+        return f"""
+        Hello! This mail is used to registration to the Mafia The Game (c)
+        Use link to approve your registration:
+        {CreateUser.get_submit_url(user_id)}
+        """
+
     def mutate(self, info, username, password, email):
 
-        EMAIL_PATTERN = r"^[a-zA-Z0-9_]+@[a-zA-Z0-9_]+\.[A-Za-z]{2}$"
         # check is email valid just in case
-        if re.match(EMAIL_PATTERN, email) is None:
+        if re.match(CreateUser.EMAIL_PATTERN, email) is None:
             raise GraphQLError("email is invalid")
 
         user = User(
             username=username,
-            email=email
+            email=email,
+            is_active=False
         )
-
         user.set_password(password)
         user.save()
+
+        send_mail("registration", CreateUser.get_raw_email_content(user.id),
+                  settings.EMAIL_HOST_USER, (email,),
+                  html_message=CreateUser.get_html_email_content(user.id))
 
         Statistic.objects.create(user=user)
 
@@ -147,25 +182,25 @@ class Query(graphene.ObjectType):
 
     def resolve_card_set(self, info, selection, **kwargs):
         user = info.context.user
-        if user.is_anonymous:
+        if user.is_anonymous or not user.is_active:
             raise GraphQLError('You must be logged in!')
         return CardSet.objects.get(id=selection)
 
     def resolve_card_set_list(self, info, **kwargs):
         user = info.context.user
-        if user.is_anonymous:
+        if user.is_anonymous or not user.is_active:
             raise GraphQLError('You must be logged in!')
         return CardSet.objects.all()
 
     def resolve_me(self, info, **kwargs):
         user = info.context.user
-        if user.is_anonymous:
+        if user.is_anonymous or not user.is_active:
             raise GraphQLError('Not logged in!')
         return user
 
     def resolve_statistic(self, info, **kwargs):
         user = info.context.user
-        if user.is_anonymous:
+        if user.is_anonymous or not user.is_active:
             raise GraphQLError('Not logged in!')
         return user.statistics.first()
 
