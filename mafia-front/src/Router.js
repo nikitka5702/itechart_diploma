@@ -7,6 +7,7 @@ import Register from './components/pages/Register'
 import Profile from './components/pages/Profile'
 import Games from './components/pages/Games'
 import Game from './components/pages/Game'
+import CreateGame from './components/pages/CreateGame'
 
 const Router = props => {
   return (
@@ -17,6 +18,7 @@ const Router = props => {
       <Route path='/profile' component={Profile} />
       <Route path='/games' component={Games} />
       <Route path='/game' component={Game} />
+      <Route path='/createGame' component={CreateGame} />
     </Switch>
   )
 }

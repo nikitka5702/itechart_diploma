@@ -15,6 +15,10 @@ query Games($q: String, $first: Int, $skip: Int) {
       username
     }
     name
+    players
+    peopleAsMafia
+    peopleAsDoctor
+    peopleAsSheriff
     extended
     createdAt
   }
@@ -70,8 +74,8 @@ export default class Games extends Component {
                         data = data.games
 
                         return data.map((d, idx) => (
-                          <div className="row">
-                            <GameCard obj={d} refetch={refetch} key={d.id} />
+                          <div className="row" key={d.id}>
+                            <GameCard obj={d} refetch={refetch} />
                           </div>
                         ))
                       }}
