@@ -4,7 +4,7 @@ from django.db.models import Q, Avg
 from graphene_django import DjangoObjectType
 from graphql import GraphQLError
 
-from .models import Statistic, Game, GamePlayers
+from .models import Statistic, CardSet, Game, GamePlayer
 
 
 class UserType(DjangoObjectType):
@@ -18,6 +18,11 @@ class StatisticType(DjangoObjectType):
         model = Statistic
 
 
+class CardSetType(DjangoObjectType):
+    class Meta:
+        model = CardSet
+
+
 class GameType(DjangoObjectType):
     class Meta:
         model = Game
@@ -25,7 +30,7 @@ class GameType(DjangoObjectType):
 
 class GamePlayersType(DjangoObjectType):
     class Meta:
-        model = GamePlayers
+        model = GamePlayer
 
 
 class CreateUser(graphene.Mutation):
@@ -54,19 +59,27 @@ class CreateGame(graphene.Mutation):
     game = graphene.Field(GameType)
 
     class Arguments:
-        name = graphene.String()
-        players = graphene.Int()
-        percentage = graphene.Int()
+        name = graphene.NonNull(graphene.String)
+        extended = graphene.NonNull(graphene.Boolean)
+        card_set = graphene.NonNull(graphene.Int)
+        players = graphene.NonNull(graphene.Int)
+        as_mafia = graphene.NonNull(graphene.Int)
+        as_doctor = graphene.Int()
+        as_sheriff = graphene.Int()
 
-    def mutate(self, info, name, players, percentage):
+    def mutate(self, info, name, extended, card_set, players, as_mafia, as_doctor, as_sheriff):
         user = info.context.user
         if user.is_anonymous:
             raise GraphQLError('You must be logged in!')
         game = Game.objects.create(
             creator=user,
             name=name,
+            extended=extended,
+            card_set_id=card_set,
             players=players,
-            mafia_percentage=percentage
+            people_as_mafia=as_mafia,
+            people_as_doctor=as_doctor,
+            people_as_sheriff=as_sheriff
         )
 
         return CreateGame(game=game)
@@ -113,7 +126,7 @@ class Query(graphene.ObjectType):
         return user.statistics.first()
 
     def resolve_games(self, info, search=None, first=None, skip=None, **kwargs):
-        qs = Game.objects.all()
+        qs = Game.objects.filter(Q(finished=False))
         if search:
             qs = qs.filter(Q(name__icontains=search))
         if skip:
