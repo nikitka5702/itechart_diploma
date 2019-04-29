@@ -1,4 +1,5 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
+import { NavLink } from 'react-router-dom'
 import { Formik, Form } from 'formik'
 import gql from 'graphql-tag'
 import { Query } from 'react-apollo'
@@ -42,7 +43,6 @@ export default class Games extends Component {
     }
   }
 
-
   render() {
     return (
       <div className="content">
@@ -73,11 +73,17 @@ export default class Games extends Component {
 
                         data = data.games
 
-                        return data.map((d, idx) => (
-                          <div className="row" key={d.id}>
-                            <GameCard obj={d} refetch={refetch} />
+                        return <Fragment>
+                          <div className="row">
+                            <NavLink to='createGame' className='btn'><i className="material-icons left">add</i>Create Game</NavLink>
+                            <button className="btn" onClick={() => refetch()}><i className="material-icons left">refresh</i>Refresh</button>
                           </div>
-                        ))
+                          {data.map((d, idx) => (
+                            <div className="row" key={d.id}>
+                              <GameCard obj={d} refetch={refetch} />
+                            </div>
+                          ))}
+                        </Fragment>
                       }}
                     </Query>
                     <div className="row">
