@@ -28,6 +28,14 @@ export default class GameCard extends Component {
   render() {
     const obj = this.props.obj
     const mode = obj.extended ? 'Extended' : 'Classic'
+    const extendedPlayers = obj.extended ? (
+      <Fragment>
+        As Doctor: {obj.peopleAsDoctor}<br/>
+        As Sheriff: {obj.peopleAsSheriff}<br/>
+      </Fragment>
+    ) : (
+      <Fragment />
+    )
     
     const delGame = this.state.id === obj.creator.id ? (
       <Mutation mutation={DELETE_GAME}>
@@ -46,6 +54,9 @@ export default class GameCard extends Component {
         <div className="card-content">
           <span className="card-title">{obj.name}</span>
           {mode}<br/>
+          Players: {obj.players}<br/>
+          As Mafia: {obj.peopleAsMafia}<br/>
+          {extendedPlayers}
           Creator: {obj.creator.username}<br/>
           Created at: <Moment>{obj.createdAt}</Moment>
         </div>

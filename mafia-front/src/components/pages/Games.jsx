@@ -1,4 +1,5 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
+import { NavLink } from 'react-router-dom'
 import { Formik, Form } from 'formik'
 import gql from 'graphql-tag'
 import { Query } from 'react-apollo'
@@ -15,6 +16,10 @@ query Games($q: String, $first: Int, $skip: Int) {
       username
     }
     name
+    players
+    peopleAsMafia
+    peopleAsDoctor
+    peopleAsSheriff
     extended
     createdAt
   }
@@ -37,7 +42,6 @@ export default class Games extends Component {
       this.setState({first: this.state.first - 10, skip: this.state.skip - 10, page: this.state.page - 1})
     }
   }
-
 
   render() {
     return (
@@ -69,11 +73,17 @@ export default class Games extends Component {
 
                         data = data.games
 
-                        return data.map((d, idx) => (
+                        return <Fragment>
                           <div className="row">
-                            <GameCard obj={d} refetch={refetch} key={d.id} />
+                            <NavLink to='createGame' className='btn'><i className="material-icons left">add</i>Create Game</NavLink>
+                            <button className="btn" onClick={() => refetch()}><i className="material-icons left">refresh</i>Refresh</button>
                           </div>
-                        ))
+                          {data.map((d, idx) => (
+                            <div className="row" key={d.id}>
+                              <GameCard obj={d} refetch={refetch} />
+                            </div>
+                          ))}
+                        </Fragment>
                       }}
                     </Query>
                     <div className="row">
