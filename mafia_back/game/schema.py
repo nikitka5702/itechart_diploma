@@ -112,6 +112,7 @@ class Query(graphene.ObjectType):
         first=graphene.Int(),
         skip=graphene.Int()
     )
+    cardSets = graphene.List(CardSetType)
 
     def resolve_me(self, info, **kwargs):
         user = info.context.user
@@ -134,6 +135,9 @@ class Query(graphene.ObjectType):
         if first:
             qs = qs[:first]
         return qs
+
+    def resolve_cardSets(self, info, **kwargs):
+        return CardSet.objects.all()
 
 
 class Mutation(graphene.ObjectType):
