@@ -50,7 +50,7 @@ class Game(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_games')
     name = models.CharField(max_length=255)
     extended = models.BooleanField(default=False)
-    card_set = models.OneToOneField(CardSet, on_delete=models.CASCADE, null=True)
+    card_set = models.OneToOneField(CardSet, on_delete=models.CASCADE, null=True, blank=True)
 
     # Classic
     players = models.IntegerField(

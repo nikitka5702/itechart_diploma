@@ -9,15 +9,13 @@ import {gql} from "apollo-boost";
 import { Mutation } from 'react-apollo'
 
 const mutation = gql`
-mutation {
-  createGamePlayer(gameId: 2)
-  {
-    gamePlayer{
+mutation CreateGamePlayer($gameId: Int!) {
+  createGamePlayer(gameId: $gameId) {
+    gamePlayer {
       token
     }
   }
-}
-`
+}`
 
 export default class Game extends Component {
   state = {
@@ -51,6 +49,7 @@ export default class Game extends Component {
     return (
       <div className="container">
         <Mutation mutation={mutation}
+                  variables={{gameId: this.props.match.params.gameId}}
                   update={(cache, { data }) => {
                     this.setState({
                         gameState: "waiting players",
