@@ -94,3 +94,6 @@ class Game(models.Model):
 class GamePlayer(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='connected_players')
     player = models.ForeignKey(User, on_delete=models.CASCADE, related_name='games')
+    token = models.CharField(max_length=36)
+    is_used = models.BooleanField(default=False)
+

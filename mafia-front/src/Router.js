@@ -8,7 +8,6 @@ import Profile from './components/pages/Profile'
 import Games from './components/pages/Games'
 import Game from './components/pages/Game'
 import CreateGame from './components/pages/CreateGame'
-import WaitGame from './components/pages/WaitGame'
 
 const Router = props => {
   return (
@@ -18,9 +17,8 @@ const Router = props => {
       <Route path='/reg' component={Register} />
       <Route path='/profile' component={Profile} />
       <Route path='/games' component={Games} />
-      <Route path='/game' component={Game} />
+      <Route path='/game/:gameId' component={Game} />
       <Route path='/createGame' component={CreateGame} />
-      <Route path='/waitPage' component={WaitGame} />
     </Switch>
   )
 }

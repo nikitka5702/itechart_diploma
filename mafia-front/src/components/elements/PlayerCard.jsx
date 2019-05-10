@@ -8,7 +8,7 @@ export default class PlayerCard extends Component {
     return (
       <div className="card">
         <div className="card-contents">
-          <span className="player-name">Player name</span>
+          <span className="player-name">{this.props.playerName}</span>
           <button className="btn-floating right waves-effect waves-light red"><i className="material-icons">priority_high</i></button>
           <button className="btn-floating right waves-effect waves-light red"><i className="material-icons">search</i></button>
           <button className="btn-floating right waves-effect waves-light red"><i className="material-icons">smoking_rooms</i></button>
