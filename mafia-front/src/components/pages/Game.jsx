@@ -4,6 +4,10 @@ import { client } from '../../index.js'
 import PlayerCard from '../elements/PlayerCard'
 
 
+const rowStyle = {
+  'margin-bottom': 0
+};
+
 const GET_MY_ID_QUERY = gql`
 query {
   me {
@@ -256,23 +260,23 @@ export default class Game extends Component {
   render() {
     return (
       <div className='container'>
-        <div className='row'>
+        <div className='row'style={rowStyle} style={rowStyle}>
           <div className='col s3'>
-            <PlayerCard ref={this.playerCardRefs[0].ref} card_id={0} />
+            {this.playerCardRefs[0].ref && <PlayerCard ref={this.playerCardRefs[0].ref} card_id={0} />}
           </div>
           <div className='col s3'>
-            <PlayerCard ref={this.playerCardRefs[1].ref} card_id={1} />
+            {this.playerCardRefs[1].ref && <PlayerCard ref={this.playerCardRefs[1].ref} card_id={1} />}
           </div>
           <div className='col s3'>
-            <PlayerCard ref={this.playerCardRefs[2].ref} card_id={2} />
+            {this.playerCardRefs[2].ref && <PlayerCard ref={this.playerCardRefs[2].ref} card_id={2} />}
           </div>
           <div className='col s3'>
-            <PlayerCard ref={this.playerCardRefs[3].ref} card_id={3} />
+            {this.playerCardRefs[3].ref && <PlayerCard ref={this.playerCardRefs[3].ref} card_id={3} />}
           </div>
         </div>
-        <div className='row valign-wrapper'>
+        <div className='row valign-wrapper' style={rowStyle}>
           <div className='col s3'>
-            <PlayerCard ref={this.playerCardRefs[4].ref} card_id={4} />
+            {this.playerCardRefs[9].ref && <PlayerCard ref={this.playerCardRefs[9].ref} card_id={9} />}
           </div>
           <div className='col s6'>
             <div className='card center'>
@@ -286,21 +290,21 @@ export default class Game extends Component {
             </div>
           </div>
           <div className='col s3'>
-            <PlayerCard ref={this.playerCardRefs[5].ref} card_id={5} />
+            {this.playerCardRefs[4].ref && <PlayerCard ref={this.playerCardRefs[4].ref} card_id={4} />}
           </div>
         </div>
-        <div className='row'>
+        <div className='row' style={rowStyle}>
           <div className='col s3'>
-            <PlayerCard ref={this.playerCardRefs[6].ref} card_id={6} />
+            {this.playerCardRefs[8].ref && <PlayerCard ref={this.playerCardRefs[8].ref} card_id={8} />}
           </div>
           <div className='col s3'>
-            <PlayerCard ref={this.playerCardRefs[7].ref} card_id={7} />
+            {this.playerCardRefs[7].ref && <PlayerCard ref={this.playerCardRefs[7].ref} card_id={7} />}
           </div>
           <div className='col s3'>
-            <PlayerCard ref={this.playerCardRefs[8].ref} card_id={8} />
+            {this.playerCardRefs[6].ref && <PlayerCard ref={this.playerCardRefs[6].ref} card_id={6} />}
           </div>
           <div className='col s3'>
-            <PlayerCard ref={this.playerCardRefs[9].ref} card_id={9} />
+            {this.playerCardRefs[5].ref && <PlayerCard ref={this.playerCardRefs[5].ref} card_id={5} />}
           </div>
         </div>
       </div>
