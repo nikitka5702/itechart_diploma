@@ -28,6 +28,13 @@ export default class Game extends Component {
 
   socket = undefined
 
+  componentWillUnmount() {
+    if (this.socket !== undefined && this.socket.readyState === WebSocket.OPEN) {
+      this.socket.onclose = () => {}
+      this.socket.close()
+    }
+  }
+
   shouldComponentUpdate(nextProps, nextState, nextContext) {
     return true
   }
@@ -46,10 +53,10 @@ export default class Game extends Component {
                      RotateLoader, ScaleLoader, SyncLoader]
     const randomLoader = loaders[Math.floor(Math.abs(Math.random() * 10)) % loaders.length]
 
-    window.history.pushState(null, null, window.location.href);
-    window.onpopstate = function () {
-        //window.history.go(1);
-    };
+    // window.history.pushState(null, null, window.location.href);
+    // window.onpopstate = function () {
+    //     window.history.go(1);
+    // };
 
     return (
       <div className="container">
