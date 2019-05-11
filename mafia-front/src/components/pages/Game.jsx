@@ -46,6 +46,11 @@ export default class Game extends Component {
                      RotateLoader, ScaleLoader, SyncLoader]
     const randomLoader = loaders[Math.floor(Math.abs(Math.random() * 10)) % loaders.length]
 
+    window.history.pushState(null, null, window.location.href);
+    window.onpopstate = function () {
+        //window.history.go(1);
+    };
+
     return (
       <div className="container">
         <Mutation mutation={mutation}
@@ -69,6 +74,8 @@ export default class Game extends Component {
                       console.log()
                       for (let i = 0; i < data.players.length; i++)
                         this.state.playerNames[i]= data.players[i]
+                      for (let i = data.players.length; i < 10; i++)
+                        this.state.playerNames[i] = 'loading'
                       this.setState({}) // to update render
                     }
                   }}

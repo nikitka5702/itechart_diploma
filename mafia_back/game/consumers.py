@@ -29,7 +29,8 @@ class GameAwaitConsumer(WebsocketConsumer):
             rooms[self.game_id].append(self)
 
         if data['type'] == 'update info':
-            self.update_info()
+            for consumer in rooms[self.game_id]:
+                consumer.update_info()
 
     def update_info(self):
         message = {}
@@ -42,7 +43,7 @@ class GameAwaitConsumer(WebsocketConsumer):
         self.send(json.dumps(message))
 
     def disconnect(self, message):
-        GamePlayer.objects.get()
+        print("disconnect")
         GamePlayer.objects.get(token=self.token).delete()
         rooms[self.game_id].remove(self)
         for user in rooms[self.game_id]:
