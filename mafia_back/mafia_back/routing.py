@@ -1,11 +1,10 @@
 from channels.routing import ProtocolTypeRouter, URLRouter
-import game.routing
+import game.consumers as consumers
 from django.conf.urls import url
-from game import consumers
 
 application = ProtocolTypeRouter({
     "websocket": URLRouter([
         url(r'^gameAwait/$', consumers.GameAwaitConsumer),
-        game.routing.websocket_urlpatterns
+        url('ws/game/', consumers.SignalingServerConsumer),
     ])
 })

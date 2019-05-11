@@ -7,7 +7,7 @@ CircleLoader, ClipLoader, DotLoader, FadeLoader, GridLoader,
 HashLoader, MoonLoader, PacmanLoader, PropagateLoader,
 PulseLoader, ReactSpinners, RingLoader, RiseLoader,
 RotateLoader, ScaleLoader, SyncLoader } from 'react-spinners'
-import {gql} from "apollo-boost";
+//import {gql} from "apollo-boost";
 import { Mutation } from 'react-apollo'
 
 const mutation = gql`

@@ -50,6 +50,7 @@ class GameAwaitConsumer(WebsocketConsumer):
         for user in rooms[self.game_id]:
             user.update_info()
 
+
 '''
 text_data structure:
   
