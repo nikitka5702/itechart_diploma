@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react'
 import gql from 'graphql-tag'
 import { ApolloConsumer, Mutation } from 'react-apollo'
 import Moment from 'react-moment'
+import {NavLink} from "react-router-dom";
 
 const GET_USER = gql`
 query {
@@ -72,7 +73,7 @@ export default class GameCard extends Component {
               }
               return (
                 <Fragment>
-                  <a href="#">Join</a>
+                  <NavLink to={`game/${this.props.obj.id}`}>Join</NavLink>
                   {delGame}
                 </Fragment>
               )

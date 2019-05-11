@@ -21,7 +21,7 @@ export default class PlayerCard extends Component {
     return (
       <div className="card">
         <div className="card-contents" style={cardContentsStyle}>
-          <span className="player-name">Player name</span>
+          <span className="player-name">{this.props.playerName}</span>
           {!this.state.voteForPlayerButtonHidden &&
             <button className="btn-floating right waves-effect waves-light red"><i className="material-icons">priority_high</i></button>
           }

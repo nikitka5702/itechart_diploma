@@ -1,11 +1,11 @@
 from channels.routing import ProtocolTypeRouter, URLRouter
 import game.routing
-from game.token_auth import TokenAuthMiddleware
+from django.conf.urls import url
+from game import consumers
 
 application = ProtocolTypeRouter({
-    'websocket': TokenAuthMiddleware(
-        URLRouter(
-            game.routing.websocket_urlpatterns
-        )
-    ),
+    "websocket": URLRouter([
+        url(r'^gameAwait/$', consumers.GameAwaitConsumer),
+        game.routing.websocket_urlpatterns
+    ])
 })
