@@ -17,7 +17,7 @@ const Router = props => {
       <Route path='/reg' component={Register} />
       <Route path='/profile' component={Profile} />
       <Route path='/games' component={Games} />
-      <Route path='/game' component={Game} />
+      <Route path='/game/:gameId' component={Game} />
       <Route path='/createGame' component={CreateGame} />
     </Switch>
   )

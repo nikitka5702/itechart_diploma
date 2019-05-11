@@ -1,4 +1,5 @@
 import graphene
+import uuid
 from django.contrib.auth.models import User
 from django.db.models import Q, Avg
 from graphene_django import DjangoObjectType
@@ -31,6 +32,24 @@ class GameType(DjangoObjectType):
 class GamePlayersType(DjangoObjectType):
     class Meta:
         model = GamePlayer
+
+
+class CreateGamePlayer(graphene.Mutation):
+    game_player = graphene.Field(GamePlayersType)
+
+    class Arguments:
+        gameId = graphene.NonNull(graphene.Int)
+
+    def mutate(self, info, gameId):
+        user = info.context.user
+        if user.is_anonymous:
+            raise GraphQLError("you must be logged in!")
+        try:
+            game_player = GamePlayer.objects.get(player_id=user.id, game_id=gameId, is_used=False)
+        except GamePlayer.DoesNotExist:
+            game_player = GamePlayer(player_id=user.id, game_id=gameId, token=uuid.uuid4())
+            game_player.save()
+        return CreateGamePlayer(game_player=game_player)
 
 
 class CreateUser(graphene.Mutation):
@@ -126,6 +145,9 @@ class Query(graphene.ObjectType):
         return user.statistics.first()
 
     def resolve_games(self, info, search=None, first=None, skip=None, **kwargs):
+        print(info.context.user.is_anonymous)
+        if info.context.user.is_anonymous:
+            raise GraphQLError("you must be logged to see and join to games")
         qs = Game.objects.filter(Q(finished=False))
         if search:
             qs = qs.filter(Q(name__icontains=search))
@@ -136,7 +158,11 @@ class Query(graphene.ObjectType):
         return qs
 
 
+
+
 class Mutation(graphene.ObjectType):
     create_user = CreateUser.Field()
     create_game = CreateGame.Field()
     delete_game = DeleteGame.Field()
+    create_game_player = CreateGamePlayer.Field()
+

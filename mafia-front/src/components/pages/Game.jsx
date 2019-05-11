@@ -2,6 +2,22 @@ import React, { Component } from 'react'
 import gql from 'graphql-tag'
 import { client } from '../../index.js'
 import PlayerCard from '../elements/PlayerCard'
+import { ClimbingBoxLoader, BarLoader, BeatLoader, BounceLoader,
+CircleLoader, ClipLoader, DotLoader, FadeLoader, GridLoader,
+HashLoader, MoonLoader, PacmanLoader, PropagateLoader,
+PulseLoader, ReactSpinners, RingLoader, RiseLoader,
+RotateLoader, ScaleLoader, SyncLoader } from 'react-spinners'
+//import {gql} from "apollo-boost";
+import { Mutation } from 'react-apollo'
+
+const mutation = gql`
+mutation CreateGamePlayer($gameId: Int!) {
+  createGamePlayer(gameId: $gameId) {
+    gamePlayer {
+      token
+    }
+  }
+}`
 
 
 const rowStyle = {
@@ -17,6 +33,26 @@ query {
 
 
 export default class Game extends Component {
+  state = {
+    isLoading: true,
+    gameState: 'connecting',
+    mutationHasDone: false,
+    token: undefined,
+    playerNames: undefined
+  }
+
+  socket = undefined
+
+  componentWillUnmount() {
+    if (this.socket !== undefined && this.socket.readyState === WebSocket.OPEN) {
+      this.socket.onclose = () => {}
+      this.socket.close()
+    }
+  }
+
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    return true
+  }
   playerId;
   gameId = 1;
 
@@ -258,29 +294,89 @@ export default class Game extends Component {
   }
 
   render() {
+    if (this.state.playerNames === undefined)
+    {
+      let defaultNamesArray = []
+      for (let i = 0; i < 10; i++)
+        defaultNamesArray.push('loading')
+      this.state.playerNames = defaultNamesArray
+    }
+    const loaders = [ClimbingBoxLoader, BarLoader, BeatLoader, BounceLoader,
+                     CircleLoader, ClipLoader, DotLoader, FadeLoader, GridLoader,
+                     HashLoader, MoonLoader, PacmanLoader, PropagateLoader,
+                     PulseLoader, ReactSpinners, RingLoader, RiseLoader,
+                     RotateLoader, ScaleLoader, SyncLoader]
+    const randomLoader = loaders[Math.floor(Math.abs(Math.random() * 10)) % loaders.length]
+
+    // window.history.pushState(null, null, window.location.href);
+    // window.onpopstate = function () {
+    //     window.history.go(1);
+    // };
+
     return (
       <div className='container'>
+        <Mutation mutation={mutation}
+                  variables={{gameId: this.props.match.params.gameId}}
+                  update={(cache, { data }) => {
+                    this.setState({
+                        gameState: "waiting players",
+                        token: data.createGamePlayer.gamePlayer.token
+                    })
+                    this.socket = new WebSocket("ws://localhost:8000/gameAwait/");
+                    this.socket.onopen = ev => {
+                      let message = {
+                        type: 'update info',
+                        token: this.state.token
+                      }
+                      this.socket.send(JSON.stringify(message))
+                    }
+                    this.socket.onmessage = ev => {
+                      let data = JSON.parse(ev.data)
+                      console.log(data.players)
+                      console.log()
+                      for (let i = 0; i < data.players.length; i++)
+                        this.state.playerNames[i]= data.players[i]
+                      for (let i = data.players.length; i < 10; i++)
+                        this.state.playerNames[i] = 'loading'
+                      this.setState({}) // to update render
+                    }
+                  }}
+        >
+          {(createGamePlayer, {data}) => {
+            if (!this.state.mutationHasDone)
+            {
+              this.setState({mutationHasDone: true})
+              createGamePlayer()
+            }
+            return <div></div> //kostyl but i didnt found better idea
+          }}
+        </Mutation>
         <div className='row'style={rowStyle} style={rowStyle}>
           <div className='col s3'>
-            {this.playerCardRefs[0].ref && <PlayerCard ref={this.playerCardRefs[0].ref} card_id={0} />}
+            {this.playerCardRefs[0].ref && <PlayerCard ref={this.playerCardRefs[0].ref} card_id={0} playerName={this.state.playerNames[0]}/>}
           </div>
           <div className='col s3'>
-            {this.playerCardRefs[1].ref && <PlayerCard ref={this.playerCardRefs[1].ref} card_id={1} />}
+            {this.playerCardRefs[1].ref && <PlayerCard ref={this.playerCardRefs[1].ref} card_id={1} playerName={this.state.playerNames[1]}/>}
           </div>
           <div className='col s3'>
-            {this.playerCardRefs[2].ref && <PlayerCard ref={this.playerCardRefs[2].ref} card_id={2} />}
+            {this.playerCardRefs[2].ref && <PlayerCard ref={this.playerCardRefs[2].ref} card_id={2} playerName={this.state.playerNames[2]}/>}
           </div>
           <div className='col s3'>
-            {this.playerCardRefs[3].ref && <PlayerCard ref={this.playerCardRefs[3].ref} card_id={3} />}
+            {this.playerCardRefs[3].ref && <PlayerCard ref={this.playerCardRefs[3].ref} card_id={3} playerName={this.state.playerNames[3]}/>}
           </div>
         </div>
         <div className='row valign-wrapper' style={rowStyle}>
           <div className='col s3'>
-            {this.playerCardRefs[9].ref && <PlayerCard ref={this.playerCardRefs[9].ref} card_id={9} />}
+            {this.playerCardRefs[9].ref && <PlayerCard ref={this.playerCardRefs[9].ref} card_id={9} playerName={this.state.playerNames[9]}/>}
           </div>
           <div className='col s6'>
             <div className='card center'>
-              <span className='card-title'>Game State</span>
+              <span className="card-title">{this.state.gameState}</span>
+              <div style={{display: 'flex', justifyContent: 'center'}}>
+                {React.createElement(randomLoader, {
+                  size: 20, sizeUnit: 'px', color:'#1dbc98', loading: this.state.isLoading
+                })}
+              </div>
               <div className='card-content'>
                 <p>Alert</p>
                 <p>Info</p>
@@ -289,26 +385,25 @@ export default class Game extends Component {
               </div>
             </div>
           </div>
-          <div className='col s3'>
-            {this.playerCardRefs[4].ref && <PlayerCard ref={this.playerCardRefs[4].ref} card_id={4} />}
+          <div className="col s3">
+            {this.playerCardRefs[4].ref && <PlayerCard ref={this.playerCardRefs[4].ref} card_id={4} playerName={this.state.playerNames[4]}/>}
           </div>
         </div>
-        <div className='row' style={rowStyle}>
-          <div className='col s3'>
-            {this.playerCardRefs[8].ref && <PlayerCard ref={this.playerCardRefs[8].ref} card_id={8} />}
+        <div className="row">
+          <div className="col s3">
+            {this.playerCardRefs[8].ref && <PlayerCard ref={this.playerCardRefs[8].ref} card_id={8} playerName={this.state.playerNames[8]}/>}
           </div>
-          <div className='col s3'>
-            {this.playerCardRefs[7].ref && <PlayerCard ref={this.playerCardRefs[7].ref} card_id={7} />}
+          <div className="col s3">
+            {this.playerCardRefs[7].ref && <PlayerCard ref={this.playerCardRefs[7].ref} card_id={7} playerName={this.state.playerNames[7]}/>}
           </div>
-          <div className='col s3'>
-            {this.playerCardRefs[6].ref && <PlayerCard ref={this.playerCardRefs[6].ref} card_id={6} />}
+          <div className="col s3">
+            {this.playerCardRefs[6].ref && <PlayerCard ref={this.playerCardRefs[6].ref} card_id={6} playerName={this.state.playerNames[6]}/>}
           </div>
-          <div className='col s3'>
-            {this.playerCardRefs[5].ref && <PlayerCard ref={this.playerCardRefs[5].ref} card_id={5} />}
+          <div className="col s3">
+            {this.playerCardRefs[5].ref && <PlayerCard ref={this.playerCardRefs[5].ref} card_id={5} playerName={this.state.playerNames[5]}/>}
           </div>
         </div>
       </div>
     )
   }
 }
-
