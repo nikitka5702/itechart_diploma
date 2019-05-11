@@ -5,7 +5,7 @@ import PlayerCard from '../elements/PlayerCard'
 
 
 const rowStyle = {
-  'margin-bottom': 0
+  marginBottom: 0
 };
 
 const GET_MY_ID_QUERY = gql`
@@ -34,7 +34,7 @@ export default class Game extends Component {
       this.playerCardRefs[i] = { ref: React.createRef() };
     }
 
-    this.signalingSocket = new WebSocket('ws://localhost:8000/ws/game/');
+    this.signalingSocket = new WebSocket(`ws://localhost:8000/ws/signaling-socket/?access_token=${localStorage.getItem('token')}`);
 
     this.signalingSocket.addEventListener('message', (event) => {
       let msg = JSON.parse(event.data)
