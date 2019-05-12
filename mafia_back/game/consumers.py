@@ -10,16 +10,20 @@ rooms: Dict[int, List['GameAwaitConsumer']] = {}
 
 
 class GameAwaitConsumer(WebsocketConsumer):
-    token = None
-    game_id = None
-    username = None
-    game_logic: GameLogic = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.token = None
+        self.game_id = None
+        self.username = None
+        self.user_id = None
+        self.game_logic: Union[GameLogic, None] = None
 
     '''
     format of sending to server data:
     
     {"type": "mafia vote", "player", "player name that have been selected by one mafia"}
-    {"type": "inhabitant vote", "player name that have been selected by one inhabitant in court"}
+    {"type": "inhabitant vote", "player": "name that have been selected by one inhabitant in court"}
     {"type": "update info", "token": "token that have been sent through mutation"}
     
     see responses in GameLogic class
@@ -35,6 +39,8 @@ class GameAwaitConsumer(WebsocketConsumer):
         game_player = \
             GamePlayer.objects.get(token=data['token']) if data['type'] == 'update info' else None
 
+        if self.user_id is None:
+            self.user_id = game_player.player_id
         if self.token is None:
             self.token = data['token']
         if self.game_id is None:
@@ -63,9 +69,11 @@ class GameAwaitConsumer(WebsocketConsumer):
         message: Dict[str, Union[str, List[str]]] = {}
         message['type'] = 'update info'
         message['players'] = []
+        message['players_id'] = []
 
         for game_player in GamePlayer.objects.filter(game_id=self.game_id):
             message['players'].append(game_player.player.username)
+            message['players_id'].append(game_player.player_id)
 
         self.send(json.dumps(message))
 

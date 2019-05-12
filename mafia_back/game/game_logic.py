@@ -7,13 +7,15 @@ import time
 class GameLogic(Thread):
 
     STATE_SLEEP = '{"type": "sleep"}'
-    STATE_WAKE_UP_MAFIA = '{"type": "wakeup mafia"}'
+    STATE_WAKE_UP_MAFIA = '{"type": "wakeup mafia", "players": %s}'
+    # in place of %s will be list with mafia's username to create connection
     STATE_WAKE_UP_INHABITANTS = '{"type": "wakeup inhabitants"}'
     STATE_GAME_OVER = '{"type": "game over"}'
     STATE_GAME_WIN = '{"type": "game win"}'
     STATE_SEND_MAFIA_RULES = '{"type": "rules", "rule": "mafia"}'
     STATE_SEND_INHABITANT_RULES = '{"type": "rules", "rule": "inhabitant"}'
-    STATE_REMOVE_PLAYER = '{"type": "remove player", "player":"%s"}'  # in place of %s will be player name
+    STATE_REMOVE_PLAYER = '{"type": "remove player", "player":"%s"}'
+    # in place of %s will be player name
 
     '''
     message format is:
@@ -22,18 +24,6 @@ class GameLogic(Thread):
     MESSAGE_BECOME_ACQUAINTED = "time to become acquainted"
     MESSAGE_KILLED_BY_MAFIA = 'today killed player is '
     MESSAGE_KILLED_IN_COURT = 'today convicted player is '
-
-    _mafia_sent_response = False
-    _mafias_responded = 0
-    _mafia_response = None
-    _mafia_responses = []
-
-    _inhabitant_sent_response = False
-    _inhabitants_responded = 0
-    _inhabitant_response = None
-    _inhabitant_responses = []
-
-    _game_over = False
 
     def __init__(self, players_list: List, mafia_number):
         super().__init__()
@@ -50,6 +40,18 @@ class GameLogic(Thread):
 
             self.players_and_rules[list(self.players_and_rules.keys())[index]] = 'mafia'
             index -= 1
+
+        self._mafia_sent_response = False
+        self._mafias_responded = 0
+        self._mafia_response = None
+        self._mafia_responses = []
+
+        self._inhabitant_sent_response = False
+        self._inhabitants_responded = 0
+        self._inhabitant_response = None
+        self._inhabitant_responses = []
+
+        self._game_over = False
 
         self.start()
 
@@ -112,7 +114,11 @@ class GameLogic(Thread):
         time.sleep(20)  # sleep for become acquainted
         while not self._game_over:
             self.send_state(GameLogic.STATE_SLEEP)
-            self.send_state(GameLogic.STATE_WAKE_UP_MAFIA)
+            mafias = []
+            for player, role in self.players_and_rules.items():
+                if role == 'mafia':
+                    mafias.append(player.username)
+            self.send_state(GameLogic.STATE_WAKE_UP_MAFIA % str(mafias))
 
             while not self._mafia_sent_response:
                 time.sleep(5)

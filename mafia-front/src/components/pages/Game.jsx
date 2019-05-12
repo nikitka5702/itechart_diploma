@@ -38,7 +38,9 @@ export default class Game extends Component {
     gameState: 'connecting',
     mutationHasDone: false,
     token: undefined,
-    playerNames: undefined
+    playerNames: undefined,
+    playerIds: undefined,
+    mafias: undefined
   }
 
   socket = undefined
@@ -301,6 +303,7 @@ export default class Game extends Component {
       for (let i = 0; i < 10; i++)
         defaultNamesArray.push('loading')
       this.state.playerNames = defaultNamesArray
+      this.state.playerIds = []
     }
     const loaders = [ClimbingBoxLoader, BarLoader, BeatLoader, BounceLoader,
                      CircleLoader, ClipLoader, DotLoader, FadeLoader, GridLoader,
@@ -323,7 +326,8 @@ export default class Game extends Component {
                         gameState: "waiting players",
                         token: data.createGamePlayer.gamePlayer.token
                     })
-                    this.socket = new WebSocket("ws://localhost:8000/gameAwait/");
+                    if (this.socket === undefined)
+                      this.socket = new WebSocket("ws://localhost:8000/gameAwait/");
                     this.socket.onopen = ev => {
                       let message = {
                         type: 'update info',
@@ -334,12 +338,35 @@ export default class Game extends Component {
                     this.socket.onmessage = ev => {
                       let data = JSON.parse(ev.data)
                       console.log(data.players)
-                      console.log()
-                      for (let i = 0; i < data.players.length; i++)
-                        this.state.playerNames[i]= data.players[i]
-                      for (let i = data.players.length; i < 10; i++)
-                        this.state.playerNames[i] = 'loading'
-                      this.setState({}) // to update render
+                      if (data.type === 'update info') {
+                        for (let i = 0; i < data.players.length; i++) {
+                          this.state.playerNames[i] = data.players[i]
+                          this.state.playerIds[i] = data.players_id[i]
+                        }
+                        for (let i = data.players.length; i < 10; i++)
+                          this.state.playerNames[i] = 'loading'
+
+                        this.setState({}) // to update render
+                      } else if (data.type === 'sleep') {
+                        // power off all cameras
+                        this.setState({gameState: 'Whole city is sleeping... Only mafias still work...'})
+                      } else if (data.type === 'wakeup mafia') {
+                        // POWER ON players with username in data.players
+                        this.setState({gameState: 'mafia vote', mafias: data.players})
+                      } else if (data.type === 'wakeup inhabitants') {
+                        // POWER ON ALL CONNECTION
+                        this.setState({gameState: 'inhabitant vote'})
+                      } else if (data.type === 'game over') {
+                        // power off all
+                        this.setState({gameState: 'YOU LOSE!'})
+                      } else if (data.type === 'game win') {
+                        // power off all
+                        this.setState({gameState: 'YOU WIN!'})
+                      } else if (data.type === 'remove player') {
+                        // power off player with username data.player
+                      } else if (data.type === 'message') {
+                        this.setState({gameState: data.message})
+                      }
                     }
                   }}
         >
@@ -372,7 +399,62 @@ export default class Game extends Component {
           </div>
           <div className='col s6'>
             <div className='card center'>
-              <span className="card-title">{this.state.gameState}</span>
+              <span className="card-title">{
+                () => {
+                  if (this.state.gameState === 'inhabitant vote')
+                    return (
+                        <form onSubmit={event => {
+                          let select = document.getElementById('select')
+                          let selectedUser = select.option[select.selectedIndex].value
+                          let data = {type: 'inhabitant vote', player: selectedUser}
+                          this.socket.send(JSON.stringify(data))
+                          return false;
+                        }}>
+                          <select id='select'>
+                            {() => {
+                              let result = ''
+                              let players = this.state.playerNames
+                              for (let player_index = 0; player_index < players.length; player_index++) {
+                                result += `<option value="${players[player_index]}">${players[player_index]}</option>`
+                              }
+                              return result
+                            }}
+                          </select>
+                        </form>
+                    )
+                  else if (this.state.gameState === 'mafia vote')
+                    return (
+                        <form onSubmit={event => {
+                          let select = document.getElementById('select')
+                          let selectedUser = select.option[select.selectedIndex].value
+                          let data = {type: 'mafia vote', player: selectedUser}
+                          this.socket.send(JSON.stringify(data))
+                          return false;
+                        }}>
+                          <select id='select'>
+                            {() => {
+                              let result = ''
+                              let players = this.state.playerNames
+                              let mafias = this.state.mafias
+                              for (let player_index = 0; player_index < players.length; player_index++) {
+                                let is_mafia = false;
+                                for (let mafia_index = 0; mafia_index < mafias.length; mafia_index++)
+                                  if (players[player_index] === mafias[mafia_index]) {
+                                    is_mafia = true
+                                    break
+                                  }
+                                if (!is_mafia)
+                                  result += `<option value="${players[player_index]}">${players[player_index]}</option>`
+                              }
+                              return result
+                            }}
+                          </select>
+                        </form>
+                    )
+                  else return this.state.gameState
+                }
+              }
+              </span>
               <div style={{display: 'flex', justifyContent: 'center'}}>
                 {React.createElement(randomLoader, {
                   size: 20, sizeUnit: 'px', color:'#1dbc98', loading: this.state.isLoading
