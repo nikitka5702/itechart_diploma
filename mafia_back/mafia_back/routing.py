@@ -1,3 +1,4 @@
+from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 import game.consumers as consumers
 import game.routing

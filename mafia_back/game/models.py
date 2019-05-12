@@ -41,7 +41,6 @@ class CardSet(models.Model):
     def __str__(self):
         return self.name
 
-
 class Game(models.Model):
     class Meta:
         verbose_name = 'Игра'
@@ -96,4 +95,7 @@ class GamePlayer(models.Model):
     player = models.ForeignKey(User, on_delete=models.CASCADE, related_name='games')
     token = models.CharField(max_length=36)
     is_used = models.BooleanField(default=False)
-
+    
+class ActivationSource(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    key = models.CharField(max_length=256)
