@@ -26,7 +26,7 @@ const SignupSchema = Yup.object().shape({
   password: Yup.string()
     .required('Password required'),
   passwordConfirm: Yup.string()
-    .oneOf([Yup.ref('password'), null], 'Passwords must match')
+    .oneOf([Yup.ref('password'), ], 'Passwords must match')
     .required('Required')
 })
 
@@ -56,7 +56,7 @@ export default class Register extends Component {
                       <div className="col s8 offset-s2">
                         <div className="row">
                           <div className="col s6">
-                          <MaterializeField type="text" name="username" component="p" title="Username" />
+                            <MaterializeField type="text" name="username" component="p" title="Username" />
                           </div>
                           <div className="col s6">
                             <MaterializeField type="text" name="email" component="p" title="Email" />
