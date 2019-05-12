@@ -7,7 +7,7 @@ const videoStyle = {
 };
 
 const cardContentsStyle = {
-  'min-height': '40px',
+  minHeight: '40px',
 };
 
 export default class PlayerCard extends Component {

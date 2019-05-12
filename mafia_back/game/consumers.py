@@ -76,7 +76,6 @@ class GameAwaitConsumer(WebsocketConsumer):
         for user in rooms[self.game_id]:
             user.update_info()
 
-
 '''
 text_data structure:
   
@@ -149,8 +148,18 @@ class SignalingServerConsumer(WebsocketConsumer):
                     return
 
     def receive(self, text_data=None, bytes_data=None):
+        user = self.scope['user']
         text_data_json = json.loads(text_data)
         game_id = int(text_data_json['game_id'])
+        player_id = int(text_data_json['player_id'])
+
+        # check that user have access
+        if (user.is_anonymous
+                or not GamePlayer.objects.filter(
+                            player_id=user.id, game_id=game_id
+                        ).exists()
+                or player_id != user.id):
+            return
 
         if text_data_json['type'] in self.only_transfer_types:
             target_id = int(text_data_json['target_id'])
@@ -158,12 +167,11 @@ class SignalingServerConsumer(WebsocketConsumer):
                 json.dumps(text_data_json)
             )
         elif text_data_json['type'] == 'player-joined':
-            player_id = int(text_data_json['player_id'])
 
             if player_id in self.game_players[game_id].keys():
                 return
 
-            for player in self.game_players[game_id].values():
-                player.send(text_data)
+            for player_consumer in self.game_players[game_id].values():
+                player_consumer.send(text_data)
 
             self.game_players[game_id][player_id] = self
