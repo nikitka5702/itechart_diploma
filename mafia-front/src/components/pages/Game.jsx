@@ -420,6 +420,7 @@ export default class Game extends Component {
                               return result
                             }}
                           </select>
+                          <input type='submit'>vote</input>
                         </form>
                     )
                   else if (this.state.gameState === 'mafia vote')
@@ -449,6 +450,7 @@ export default class Game extends Component {
                               return result
                             }}
                           </select>
+                          <input type='submit'>vote</input>
                         </form>
                     )
                   else return this.state.gameState
