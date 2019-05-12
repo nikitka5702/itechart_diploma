@@ -3,5 +3,5 @@ from django.conf.urls import url
 from . import consumers
 
 websocket_urlpatterns = [
-    url('ws/game/', consumers.SignalingServerConsumer),
+    url('ws/signaling-socket/', consumers.SignalingServerConsumer),
 ]
