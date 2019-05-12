@@ -33,7 +33,7 @@ export default class PlayerCard extends Component {
           }
         </div>
         <div className="container-video">
-          <video id={"video-" + this.props.card_id} ref={this.videoRef} style={videoStyle} poster={player_hidden_image} autoPlay></video>
+          <video id={"video-" + this.props.playerId} ref={this.videoRef} style={videoStyle} poster={player_hidden_image} autoPlay></video>
         </div>
       </div>
     )

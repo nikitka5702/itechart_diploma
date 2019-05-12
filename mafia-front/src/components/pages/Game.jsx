@@ -106,17 +106,8 @@ export default class Game extends Component {
             player_id: this.playerId
           });
         });
-
-      let cardRefs = this.playerCardRefs;
-      navigator.mediaDevices.getUserMedia(this.mediaConstraints)
-        .then((localStream) => {
-          cardRefs[this.playerId].ref.current.videoRef.current.srcObject = localStream;
-          cardRefs[this.playerId].ref.current.videoRef.current.muted = true;
-        })
-        .catch(this.videoHandleGetUserMediaError);
-    });
+     });
   }
-
   videoHandlePlayerJoinedMsg = (msg) => {
     this.videoCreatePeerConnection(msg.player_id);
     navigator.mediaDevices.getUserMedia(this.mediaConstraints)
@@ -296,6 +287,17 @@ export default class Game extends Component {
     console.log(this.peerConnections)
   }
 
+  resumeVideoStreaming(playerId) {
+    let video = document.getElementById('video-'.concat(playerId))
+    video.load();
+  }
+
+  pauseVideoStreaming(playerId) {
+    let video = document.getElementById('video-'.concat(playerId))
+    video.load();
+    video.pause();
+  }
+
   render() {
     if (this.state.playerNames === undefined)
     {
@@ -347,6 +349,14 @@ export default class Game extends Component {
                           this.state.playerNames[i] = 'loading'
 
                         this.setState({}) // to update render
+
+                        navigator.mediaDevices.getUserMedia(this.mediaConstraints)
+                        .then((localStream) => {
+                          let video = document.getElementById('video-'.concat(this.playerId))
+                          video.srcObject = localStream;
+                          video.muted = true;
+                        })
+                        .catch(this.videoHandleGetUserMediaError);
                       } else if (data.type === 'sleep') {
                         // power off all cameras
                         this.setState({gameState: 'Whole city is sleeping... Only mafias still work...'})
@@ -381,21 +391,21 @@ export default class Game extends Component {
         </Mutation>
         <div className='row'style={rowStyle} style={rowStyle}>
           <div className='col s3'>
-            {this.playerCardRefs[0].ref && <PlayerCard ref={this.playerCardRefs[0].ref} card_id={0} playerName={this.state.playerNames[0]}/>}
+            {this.playerCardRefs[0].ref && <PlayerCard ref={this.playerCardRefs[0].ref} playerId={this.state.playerIds[0]} playerName={this.state.playerNames[0]}/>}
           </div>
           <div className='col s3'>
-            {this.playerCardRefs[1].ref && <PlayerCard ref={this.playerCardRefs[1].ref} card_id={1} playerName={this.state.playerNames[1]}/>}
+            {this.playerCardRefs[1].ref && <PlayerCard ref={this.playerCardRefs[1].ref} playerId={this.state.playerIds[1]} playerName={this.state.playerNames[1]}/>}
           </div>
           <div className='col s3'>
-            {this.playerCardRefs[2].ref && <PlayerCard ref={this.playerCardRefs[2].ref} card_id={2} playerName={this.state.playerNames[2]}/>}
+            {this.playerCardRefs[2].ref && <PlayerCard ref={this.playerCardRefs[2].ref} playerId={this.state.playerIds[2]} playerName={this.state.playerNames[2]}/>}
           </div>
           <div className='col s3'>
-            {this.playerCardRefs[3].ref && <PlayerCard ref={this.playerCardRefs[3].ref} card_id={3} playerName={this.state.playerNames[3]}/>}
+            {this.playerCardRefs[3].ref && <PlayerCard ref={this.playerCardRefs[3].ref} playerId={this.state.playerIds[3]} playerName={this.state.playerNames[3]}/>}
           </div>
         </div>
         <div className='row valign-wrapper' style={rowStyle}>
           <div className='col s3'>
-            {this.playerCardRefs[9].ref && <PlayerCard ref={this.playerCardRefs[9].ref} card_id={9} playerName={this.state.playerNames[9]}/>}
+            {this.playerCardRefs[9].ref && <PlayerCard ref={this.playerCardRefs[9].ref} playerId={this.state.playerIds[9]} playerName={this.state.playerNames[9]}/>}
           </div>
           <div className='col s6'>
             <div className='card center'>
@@ -469,21 +479,21 @@ export default class Game extends Component {
             </div>
           </div>
           <div className="col s3">
-            {this.playerCardRefs[4].ref && <PlayerCard ref={this.playerCardRefs[4].ref} card_id={4} playerName={this.state.playerNames[4]}/>}
+            {this.playerCardRefs[4].ref && <PlayerCard ref={this.playerCardRefs[4].ref} playerId={this.state.playerIds[4]} playerName={this.state.playerNames[4]}/>}
           </div>
         </div>
         <div className="row">
           <div className="col s3">
-            {this.playerCardRefs[8].ref && <PlayerCard ref={this.playerCardRefs[8].ref} card_id={8} playerName={this.state.playerNames[8]}/>}
+            {this.playerCardRefs[8].ref && <PlayerCard ref={this.playerCardRefs[8].ref} playerId={this.state.playerIds[8]} playerName={this.state.playerNames[8]}/>}
           </div>
           <div className="col s3">
-            {this.playerCardRefs[7].ref && <PlayerCard ref={this.playerCardRefs[7].ref} card_id={7} playerName={this.state.playerNames[7]}/>}
+            {this.playerCardRefs[7].ref && <PlayerCard ref={this.playerCardRefs[7].ref} playerId={this.state.playerIds[7]} playerName={this.state.playerNames[7]}/>}
           </div>
           <div className="col s3">
-            {this.playerCardRefs[6].ref && <PlayerCard ref={this.playerCardRefs[6].ref} card_id={6} playerName={this.state.playerNames[6]}/>}
+            {this.playerCardRefs[6].ref && <PlayerCard ref={this.playerCardRefs[6].ref} playerId={this.state.playerIds[6]} playerName={this.state.playerNames[6]}/>}
           </div>
           <div className="col s3">
-            {this.playerCardRefs[5].ref && <PlayerCard ref={this.playerCardRefs[5].ref} card_id={5} playerName={this.state.playerNames[5]}/>}
+            {this.playerCardRefs[5].ref && <PlayerCard ref={this.playerCardRefs[5].ref} playerId={this.state.playerIds[5]} playerName={this.state.playerNames[5]}/>}
           </div>
         </div>
       </div>
