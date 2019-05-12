@@ -2,8 +2,9 @@ import json
 
 from channels.generic.websocket import WebsocketConsumer
 from .models import GamePlayer
-from typing import Dict, List
+from typing import Dict, List, Union
 from collections import defaultdict
+from .game_logic import GameLogic
 
 rooms: Dict[int, List['GameAwaitConsumer']] = {}
 
@@ -11,30 +12,55 @@ rooms: Dict[int, List['GameAwaitConsumer']] = {}
 class GameAwaitConsumer(WebsocketConsumer):
     token = None
     game_id = None
+    username = None
+    game_logic: GameLogic = None
+
+    '''
+    format of sending to server data:
+    
+    {"type": "mafia vote", "player", "player name that have been selected by one mafia"}
+    {"type": "inhabitant vote", "player name that have been selected by one inhabitant in court"}
+    {"type": "update info", "token": "token that have been sent through mutation"}
+    
+    see responses in GameLogic class
+    '''
 
     def connect(self):
-        print("connected")
         self.accept()
 
     def receive(self, text_data=None, bytes_data=None):
         data = json.loads(text_data)
         print(data)
 
+        game_player = \
+            GamePlayer.objects.get(token=data['token']) if data['type'] == 'update info' else None
+
         if self.token is None:
             self.token = data['token']
         if self.game_id is None:
-            self.game_id = GamePlayer.objects.get(token=data['token']).game_id
+            self.game_id = game_player.game_id
         if self.game_id not in rooms:
             rooms[self.game_id] = []
+        if self.username is None:
+            self.username = game_player.player.username
         if self not in rooms[self.game_id]:
             rooms[self.game_id].append(self)
 
         if data['type'] == 'update info':
             for consumer in rooms[self.game_id]:
                 consumer.update_info()
+        elif data['type'] == 'mafia vote':
+            self.game_logic.set_mafia_response(data['player'])
+        elif data['type'] == 'inhabitant vote':
+            self.game_logic.set_inhabitant_response(data['player'])
+
+        if game_player.game.players == len(rooms[game_player.game_id]) and data['type'] == 'update info':
+            game_logic = GameLogic(rooms[game_player.game_id], game_player.game.people_as_mafia)  # init game logic
+            for player in rooms[game_player.game_ids]:
+                player.game_logic = game_logic
 
     def update_info(self):
-        message = {}
+        message: Dict[str, Union[str, List[str]]] = {}
         message['type'] = 'update info'
         message['players'] = []
 
