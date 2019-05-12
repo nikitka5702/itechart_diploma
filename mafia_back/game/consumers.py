@@ -50,8 +50,6 @@ class GameAwaitConsumer(WebsocketConsumer):
         for user in rooms[self.game_id]:
             user.update_info()
 
-from game.models import GamePlayer
-
 '''
 text_data structure:
   
