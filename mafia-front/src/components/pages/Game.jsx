@@ -43,18 +43,12 @@ export default class Game extends Component {
 
   socket = undefined
 
-  componentWillUnmount() {
-    if (this.socket !== undefined && this.socket.readyState === WebSocket.OPEN) {
-      this.socket.onclose = () => {}
-      this.socket.close()
-    }
-  }
-
   shouldComponentUpdate(nextProps, nextState, nextContext) {
     return true
   }
+  
   playerId;
-  gameId = 1;
+  gameId = this.props.match.params.gameId;
 
   mediaConstraints = {
     audio: true,
@@ -255,9 +249,11 @@ export default class Game extends Component {
     if (playerVideo.srcObject) {
       playerVideo.srcObject.getTracks().forEach(track => track.stop());
     }
-  
-    this.peerConnections[playerId].close()
-    delete this.peerConnections[playerId];
+    
+    if (playerId != this.playerId) {
+      this.peerConnections[playerId].close()
+      delete this.peerConnections[playerId];
+    }
   }
 
   videoSendToServer = (msg) => {
@@ -287,6 +283,11 @@ export default class Game extends Component {
       this.signalingSocket.onclose = () => {}
       this.signalingSocket.close()
     }
+    if (this.socket !== undefined && this.socket.readyState === WebSocket.OPEN) {
+      this.socket.onclose = () => {}
+      this.socket.close()
+    }
+    this.videoEndVideoStreaming(this.playerId);
   }
 
   testGetPeers = () => {
