@@ -63,7 +63,7 @@ class CreateGamePlayer(graphene.Mutation):
 
 class CreateUser(graphene.Mutation):
     user = graphene.Field(UserType)
-    EMAIL_PATTERN = r"^[a-zA-Z0-9_]+@[a-zA-Z0-9_]+\.[A-Za-z]{2}$"
+    EMAIL_PATTERN = r"^[a-zA-Z0-9_]+@[a-zA-Z0-9_]+\.[A-Za-z]{2,3}$"
 
     class Arguments:
         username = graphene.String()

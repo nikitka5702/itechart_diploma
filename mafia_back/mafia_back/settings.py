@@ -25,7 +25,9 @@ SECRET_KEY = '=_dla1s2e69jox-us-$*_m1szbf4i3test%8h*9_aj6iqfr)+r'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'mafiahegame.herokuapp.com',
+]
 
 
 # Application definition
