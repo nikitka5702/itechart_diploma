@@ -36,13 +36,13 @@ class GameAwaitConsumer(WebsocketConsumer):
         data = json.loads(text_data)
         print(data)
 
-        game_player = \
-            GamePlayer.objects.get(token=data['token']) if data['type'] == 'update info' else None
+        if self.token is None:
+            self.token = data['token']
+
+        game_player = GamePlayer.objects.get(token=data['token'])
 
         if self.user_id is None:
             self.user_id = game_player.player_id
-        if self.token is None:
-            self.token = data['token']
         if self.game_id is None:
             self.game_id = game_player.game_id
         if self.game_id not in rooms:
@@ -59,6 +59,9 @@ class GameAwaitConsumer(WebsocketConsumer):
             self.game_logic.set_mafia_response(data['player'])
         elif data['type'] == 'inhabitant vote':
             self.game_logic.set_inhabitant_response(data['player'])
+
+        print(game_player.game.players)
+        print(len(rooms[game_player.game_id]))
 
         if game_player.game.players == len(rooms[game_player.game_id]) and data['type'] == 'update info':
             game_logic = GameLogic(rooms[game_player.game_id], game_player.game.people_as_mafia)  # init game logic

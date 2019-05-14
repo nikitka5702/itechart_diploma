@@ -41,6 +41,7 @@ class CardSet(models.Model):
     def __str__(self):
         return self.name
 
+
 class Game(models.Model):
     class Meta:
         verbose_name = 'Игра'
@@ -49,7 +50,7 @@ class Game(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_games')
     name = models.CharField(max_length=255)
     extended = models.BooleanField(default=False)
-    card_set = models.OneToOneField(CardSet, on_delete=models.CASCADE, null=True, blank=True)
+    card_set = models.ForeignKey(CardSet, on_delete=models.CASCADE, null=True, blank=True)
 
     # Classic
     players = models.IntegerField(
@@ -62,7 +63,7 @@ class Game(models.Model):
     people_as_mafia = models.IntegerField(
         default=2,
         validators=[
-            MinValueValidator(2),
+            MinValueValidator(1),
             MaxValueValidator(4)
         ]
     )
@@ -71,14 +72,14 @@ class Game(models.Model):
     people_as_doctor = models.IntegerField(
         default=1,
         validators=[
-            MinValueValidator(1),
+            MinValueValidator(0),
             MaxValueValidator(2)
         ]
     )
     people_as_sheriff = models.IntegerField(
         default=1,
         validators=[
-            MinValueValidator(1),
+            MinValueValidator(0),
             MaxValueValidator(2)
         ]
     )
@@ -95,7 +96,8 @@ class GamePlayer(models.Model):
     player = models.ForeignKey(User, on_delete=models.CASCADE, related_name='games')
     token = models.CharField(max_length=36)
     is_used = models.BooleanField(default=False)
-    
+
+
 class ActivationSource(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     key = models.CharField(max_length=256)
