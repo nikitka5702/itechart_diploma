@@ -27,7 +27,8 @@ const rowStyle = {
 const GET_MY_ID_QUERY = gql`
 query {
   me {
-    id
+    id,
+    username
   }
 }`
 
@@ -99,7 +100,7 @@ export default class Game extends Component {
         })
         .then((obj) => { 
           this.playerId = parseInt(obj.data.me.id);
-
+          console.log(this.playerId)
           client
               .mutate({
                 mutation: GET_TOKEN_MUTATION,
@@ -108,7 +109,6 @@ export default class Game extends Component {
                 }
               })
               .then(ev => {
-                console.log(ev.data)
                 this.setState({
                   token: ev.data.createGamePlayer.gamePlayer.token,
                   gameState: "waiting players",
@@ -166,11 +166,17 @@ export default class Game extends Component {
       let cardRefs = this.playerCardRefs;
       navigator.mediaDevices.getUserMedia(this.mediaConstraints)
         .then((localStream) => {
-          cardRefs[this.playerId].ref.current.videoRef.current.srcObject = localStream;
-          cardRefs[this.playerId].ref.current.videoRef.current.muted = true;
+          cardRefs[this.getIndex(this.playerId)].ref.current.videoRef.current.srcObject = localStream;
+          cardRefs[this.getIndex(this.playerId)].ref.current.videoRef.current.muted = true;
         })
         .catch(this.videoHandleGetUserMediaError);
     });
+  }
+
+  getIndex = (playerId) => {
+    for(let i = 0; i < this.state.playerIds.length; i++)
+      if (playerId === this.state.playerIds[i])
+        return i
   }
 
   videoHandlePlayerJoinedMsg = (msg) => {
@@ -372,6 +378,9 @@ export default class Game extends Component {
     // window.onpopstate = function () {
     //     window.history.go(1);
     // };
+
+    console.log(this.getIndex(this.playerId))
+    console.log(this.state.playerIds)
 
     return (
       <div className='container'>

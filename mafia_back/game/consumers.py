@@ -172,7 +172,7 @@ class SignalingServerConsumer(WebsocketConsumer):
 
         if text_data_json['type'] in self.only_transfer_types:
             target_id = int(text_data_json['target_id'])
-            self.game_players[game_id][target_id].send(
+            SignalingServerConsumer.game_players[game_id][target_id].send(
                 json.dumps(text_data_json)
             )
         elif text_data_json['type'] == 'player-joined':
