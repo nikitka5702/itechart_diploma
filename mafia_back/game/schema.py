@@ -99,7 +99,6 @@ class CreateUser(graphene.Mutation):
         """
 
     def mutate(self, info, username, password, email):
-
         # check is email valid just in case
         if re.match(CreateUser.EMAIL_PATTERN, email) is None:
             raise GraphQLError("email is invalid")
