@@ -84,6 +84,7 @@ class GameAwaitConsumer(WebsocketConsumer):
         for user in rooms[self.game_id]:
             user.update_info()
 
+
 '''
 text_data structure:
   
@@ -182,4 +183,4 @@ class SignalingServerConsumer(WebsocketConsumer):
             for player_consumer in self.game_players[game_id].values():
                 player_consumer.send(text_data)
 
-            self.game_players[game_id][player_id] = self
+            SignalingServerConsumer.game_players[game_id][player_id] = self

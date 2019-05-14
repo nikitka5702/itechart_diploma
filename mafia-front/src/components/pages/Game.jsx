@@ -10,7 +10,7 @@ RotateLoader, ScaleLoader, SyncLoader } from 'react-spinners'
 //import {gql} from "apollo-boost";
 import { Mutation } from 'react-apollo'
 
-const mutation = gql`
+const GET_TOKEN_MUTATION = gql`
 mutation CreateGamePlayer($gameId: Int!) {
   createGamePlayer(gameId: $gameId) {
     gamePlayer {
@@ -100,12 +100,67 @@ export default class Game extends Component {
         .then((obj) => { 
           this.playerId = parseInt(obj.data.me.id);
 
-          this.videoSendToServer({
-            type: 'player-joined',
-            game_id: this.gameId,
-            player_id: this.playerId
-          });
+          client
+              .mutate({
+                mutation: GET_TOKEN_MUTATION,
+                variables : {
+                  gameId: this.props.match.params.gameId
+                }
+              })
+              .then(ev => {
+                this.setState({
+                  token: ev.data.createGamePlayer.gamePlayer.token,
+                  gameState: "waiting players",
+                })
+                this.videoSendToServer({
+                  type: 'player-joined',
+                  game_id: this.gameId,
+                  player_id: this.playerId,
+                })
+              })
         });
+
+      if (this.socket === undefined)
+        this.socket = new WebSocket("ws://localhost:8000/gameAwait/");
+      this.socket.onopen = ev => {
+        let message = {
+          type: 'update info',
+          token: this.state.token
+        }
+        this.socket.send(JSON.stringify(message))
+      }
+      this.socket.onmessage = ev => {
+        let data = JSON.parse(ev.data)
+        console.log(data.players)
+        if (data.type === 'update info') {
+          for (let i = 0; i < data.players.length; i++) {
+            this.state.playerNames[i] = data.players[i]
+            this.state.playerIds[i] = data.players_id[i]
+          }
+          for (let i = data.players.length; i < 10; i++)
+            this.state.playerNames[i] = 'loading'
+          this.setState({}) // to update render
+        } else if (data.type === 'sleep') {
+          // power off all cameras
+          this.setState({gameState: 'Whole city is sleeping... Only mafias still work...'})
+        } else if (data.type === 'wakeup mafia') {
+          // POWER ON players with username in data.players
+          this.setState({gameState: 'mafia vote', mafias: data.players})
+        } else if (data.type === 'wakeup inhabitants') {
+          // POWER ON ALL CONNECTION
+          this.setState({gameState: 'inhabitant vote'})
+        } else if (data.type === 'game over') {
+          // power off all
+          this.setState({gameState: 'YOU LOSE!'})
+        } else if (data.type === 'game win') {
+          // power off all
+          this.setState({gameState: 'YOU WIN!'})
+        } else if (data.type === 'remove player') {
+          // power off player with username data.player
+        } else if (data.type === 'message') {
+          this.setState({gameState: data.message})
+        }
+      }
 
       let cardRefs = this.playerCardRefs;
       navigator.mediaDevices.getUserMedia(this.mediaConstraints)
@@ -319,66 +374,6 @@ export default class Game extends Component {
 
     return (
       <div className='container'>
-        <Mutation mutation={mutation}
-                  variables={{gameId: this.props.match.params.gameId}}
-                  update={(cache, { data }) => {
-                    this.setState({
-                        gameState: "waiting players",
-                        token: data.createGamePlayer.gamePlayer.token
-                    })
-                    if (this.socket === undefined)
-                      this.socket = new WebSocket("ws://localhost:8000/gameAwait/");
-                    this.socket.onopen = ev => {
-                      let message = {
-                        type: 'update info',
-                        token: this.state.token
-                      }
-                      this.socket.send(JSON.stringify(message))
-                    }
-                    this.socket.onmessage = ev => {
-                      let data = JSON.parse(ev.data)
-                      console.log(data.players)
-                      if (data.type === 'update info') {
-                        for (let i = 0; i < data.players.length; i++) {
-                          this.state.playerNames[i] = data.players[i]
-                          this.state.playerIds[i] = data.players_id[i]
-                        }
-                        for (let i = data.players.length; i < 10; i++)
-                          this.state.playerNames[i] = 'loading'
-
-                        this.setState({}) // to update render
-                      } else if (data.type === 'sleep') {
-                        // power off all cameras
-                        this.setState({gameState: 'Whole city is sleeping... Only mafias still work...'})
-                      } else if (data.type === 'wakeup mafia') {
-                        // POWER ON players with username in data.players
-                        this.setState({gameState: 'mafia vote', mafias: data.players})
-                      } else if (data.type === 'wakeup inhabitants') {
-                        // POWER ON ALL CONNECTION
-                        this.setState({gameState: 'inhabitant vote'})
-                      } else if (data.type === 'game over') {
-                        // power off all
-                        this.setState({gameState: 'YOU LOSE!'})
-                      } else if (data.type === 'game win') {
-                        // power off all
-                        this.setState({gameState: 'YOU WIN!'})
-                      } else if (data.type === 'remove player') {
-                        // power off player with username data.player
-                      } else if (data.type === 'message') {
-                        this.setState({gameState: data.message})
-                      }
-                    }
-                  }}
-        >
-          {(createGamePlayer, {data}) => {
-            if (!this.state.mutationHasDone)
-            {
-              this.setState({mutationHasDone: true})
-              createGamePlayer()
-            }
-            return <div></div> //kostyl but i didnt found better idea
-          }}
-        </Mutation>
         <div className='row'style={rowStyle} style={rowStyle}>
           <div className='col s3'>
             {this.playerCardRefs[0].ref && <PlayerCard ref={this.playerCardRefs[0].ref} card_id={0} playerName={this.state.playerNames[0]}/>}
