@@ -129,8 +129,9 @@ export default class Game extends Component {
                   this.socket.send(JSON.stringify(message))
                 }
                 this.socket.onmessage = ev => {
+                  console.log(ev.data)
                   let data = JSON.parse(ev.data)
-                  console.log(data.players)
+                  this.setState({isLoading: false})
                   if (data.type === 'update info') {
                     for (let i = 0; i < data.players.length; i++) {
                       this.state.playerNames[i] = data.players[i]
@@ -138,7 +139,7 @@ export default class Game extends Component {
                     }
                     for (let i = data.players.length; i < 10; i++)
                       this.state.playerNames[i] = 'loading'
-                    this.setState({}) // to update render
+                    this.setState({isLoading: true}) // to update render
                   } else if (data.type === 'sleep') {
                     // power off all cameras
                     this.setState({gameState: 'Whole city is sleeping... Only mafias still work...'})
@@ -158,6 +159,8 @@ export default class Game extends Component {
                     // power off player with username data.player
                   } else if (data.type === 'message') {
                     this.setState({gameState: data.message})
+                  } else if (data.type === 'rules') {
+                    this.setState({gameState: 'you are ' + data.rule})
                   }
                 }
               })
@@ -405,10 +408,10 @@ export default class Game extends Component {
           <div className='col s6'>
             <div className='card center'>
               <span className="card-title">{
-                () => {
+                (() => {
                   if (this.state.gameState === 'inhabitant vote')
                     return (
-                        <form onSubmit={event => {
+                        <form onSubmit={() => {
                           let select = document.getElementById('select')
                           let selectedUser = select.option[select.selectedIndex].value
                           let data = {type: 'inhabitant vote', player: selectedUser}
@@ -416,21 +419,21 @@ export default class Game extends Component {
                           return false;
                         }}>
                           <select id='select'>
-                            {() => {
+                            {(() => {
                               let result = ''
                               let players = this.state.playerNames
                               for (let player_index = 0; player_index < players.length; player_index++) {
                                 result += `<option value="${players[player_index]}">${players[player_index]}</option>`
                               }
                               return result
-                            }}
+                            })()}
                           </select>
-                          <input type='submit'>vote</input>
+                          <input type='submit' value='vote'/>
                         </form>
                     )
                   else if (this.state.gameState === 'mafia vote')
                     return (
-                        <form onSubmit={event => {
+                        <form onSubmit={() => {
                           let select = document.getElementById('select')
                           let selectedUser = select.option[select.selectedIndex].value
                           let data = {type: 'mafia vote', player: selectedUser}
@@ -438,7 +441,7 @@ export default class Game extends Component {
                           return false;
                         }}>
                           <select id='select'>
-                            {() => {
+                            {(() => {
                               let result = ''
                               let players = this.state.playerNames
                               let mafias = this.state.mafias
@@ -453,13 +456,13 @@ export default class Game extends Component {
                                   result += `<option value="${players[player_index]}">${players[player_index]}</option>`
                               }
                               return result
-                            }}
+                            })()}
                           </select>
-                          <input type='submit'>vote</input>
+                          <input type='submit' value='vote'/>
                         </form>
                     )
                   else return this.state.gameState
-                }
+                })()
               }
               </span>
               <div style={{display: 'flex', justifyContent: 'center'}}>

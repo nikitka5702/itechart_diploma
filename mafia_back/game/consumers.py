@@ -65,7 +65,7 @@ class GameAwaitConsumer(WebsocketConsumer):
 
         if game_player.game.players == len(rooms[game_player.game_id]) and data['type'] == 'update info':
             game_logic = GameLogic(rooms[game_player.game_id], game_player.game.people_as_mafia)  # init game logic
-            for player in rooms[game_player.game_ids]:
+            for player in rooms[game_player.game_id]:
                 player.game_logic = game_logic
 
     def update_info(self):

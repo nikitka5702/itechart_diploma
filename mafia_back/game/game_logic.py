@@ -39,7 +39,7 @@ class GameLogic(Thread):
                 continue
 
             self.players_and_rules[list(self.players_and_rules.keys())[index]] = 'mafia'
-            index -= 1
+            mafia_to_spread -= 1
 
         self._mafia_sent_response = False
         self._mafias_responded = 0
@@ -157,6 +157,7 @@ class GameLogic(Thread):
                     self._game_over = True
 
     def send_state(self, state: str):
+        state = state.replace("'", '"')  # replace all apostrophes because JSON does not like them
         for player in self.players_and_rules.keys():
             player.send(state)
 
@@ -169,4 +170,4 @@ class GameLogic(Thread):
 
     def send_message(self, message: str):
         for player in self.players_and_rules.keys():
-            player.send(f'{{"type": "message", "message": {message}}}')
+            player.send(f'{{"type": "message", "message": "{message}"}}')

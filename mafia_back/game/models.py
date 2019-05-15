@@ -56,7 +56,7 @@ class Game(models.Model):
     players = models.IntegerField(
         default=5,
         validators=[
-            MinValueValidator(5),
+            MinValueValidator(3),
             MaxValueValidator(10)
         ]
     )
