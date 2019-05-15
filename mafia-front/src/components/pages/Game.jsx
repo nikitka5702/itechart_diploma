@@ -407,63 +407,63 @@ export default class Game extends Component {
           </div>
           <div className='col s6'>
             <div className='card center'>
-              <span className="card-title">{
-                (() => {
-                  if (this.state.gameState === 'inhabitant vote')
-                    return (
-                        <form onSubmit={() => {
-                          let select = document.getElementById('select')
-                          let selectedUser = select.option[select.selectedIndex].value
-                          let data = {type: 'inhabitant vote', player: selectedUser}
-                          this.socket.send(JSON.stringify(data))
-                          return false;
-                        }}>
-                          <select id='select'>
-                            {(() => {
-                              let result = ''
-                              let players = this.state.playerNames
-                              for (let player_index = 0; player_index < players.length; player_index++) {
-                                result += `<option value="${players[player_index]}">${players[player_index]}</option>`
-                              }
-                              return result
-                            })()}
-                          </select>
-                          <input type='submit' value='vote'/>
-                        </form>
-                    )
-                  else if (this.state.gameState === 'mafia vote')
-                    return (
-                        <form onSubmit={() => {
-                          let select = document.getElementById('select')
-                          let selectedUser = select.option[select.selectedIndex].value
-                          let data = {type: 'mafia vote', player: selectedUser}
-                          this.socket.send(JSON.stringify(data))
-                          return false;
-                        }}>
-                          <select id='select'>
-                            {(() => {
-                              let result = ''
-                              let players = this.state.playerNames
-                              let mafias = this.state.mafias
-                              for (let player_index = 0; player_index < players.length; player_index++) {
-                                let is_mafia = false;
-                                for (let mafia_index = 0; mafia_index < mafias.length; mafia_index++)
-                                  if (players[player_index] === mafias[mafia_index]) {
-                                    is_mafia = true
-                                    break
-                                  }
-                                if (!is_mafia)
-                                  result += `<option value="${players[player_index]}">${players[player_index]}</option>`
-                              }
-                              return result
-                            })()}
-                          </select>
-                          <input type='submit' value='vote'/>
-                        </form>
-                    )
-                  else return this.state.gameState
-                })()
-              }
+              <span className="card-title">
+                <div style={(() => {
+                  if (this.state.gameState !== 'inhabitant vote') return {display: 'none'}; else return {}
+                })()}>
+                  <div className="input-field">
+                    <select id='select_inhabitant'>
+                      {(() => {
+                        let result = []
+                        let players = this.state.playerNames
+                        for (let player_index = 0; player_index < players.length; player_index++) {
+                          result.push(<option value={players[player_index]}>{players[player_index]}</option>)
+                        }
+                        return result
+                      })()}
+                    </select>
+                  </div>
+                  <button value='vote' className="btn" onClick={() => {
+                    let select = document.getElementsByClassName('select_inhabitant')[0]
+                    let selectedUser = select.option[select.selectedIndex].value
+                    let data = {type: 'inhabitant vote', player: selectedUser}
+                    this.socket.send(JSON.stringify(data))
+                    return false;
+                  }}>vote</button>
+                </div>
+                <div style={(() => {
+                  if (this.state.gameState !== 'mafia vote') return {display: 'none'}; else return {}
+                })()}>
+                  <div className="input-field">
+                    <select className='select' name='select'>
+                      {(() => {
+                        let result = []
+                        let players = this.state.playerNames
+                        let mafias = this.state.mafias
+                        if (mafias === undefined || players === undefined)
+                          return
+                        for (let player_index = 0; player_index < players.length; player_index++) {
+                          let is_mafia = false;
+                          for (let mafia_index = 0; mafia_index < mafias.length; mafia_index++)
+                            if (players[player_index] === mafias[mafia_index]) {
+                              is_mafia = true
+                              break
+                            }
+                          if (!is_mafia)
+                            result.push(<option value={players[player_index]}>${players[player_index]}</option>)
+                        }
+                        return result
+                      })()}
+                    </select>
+                  </div>
+                  <button value='vote' className="btn" onClick={() => {
+                    let select = document.getElementsByClassName('select')[0]
+                    let selectedUser = select.option[select.selectedIndex].value
+                    let data = {type: 'mafia vote', player: selectedUser}
+                    this.socket.send(JSON.stringify(data))
+                  }}>vote</button>
+                </div>
+                {this.state.gameState}
               </span>
               <div style={{display: 'flex', justifyContent: 'center'}}>
                 {React.createElement(randomLoader, {
