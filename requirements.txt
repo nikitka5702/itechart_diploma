@@ -1,3 +1,4 @@
+cv2
 django
 channels
 pypiwin32

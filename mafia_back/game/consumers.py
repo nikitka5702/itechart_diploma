@@ -69,7 +69,7 @@ class GameAwaitConsumer(WebsocketConsumer):
                 player.game_logic = game_logic
 
     def update_info(self):
-        message: Dict[str, Union[str, List[str]]] = {}
+        message: Dict[str, Union[str, List[str]]] = dict()
         message['type'] = 'update info'
         message['players'] = []
         message['players_id'] = []

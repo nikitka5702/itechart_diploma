@@ -171,3 +171,4 @@ class GameLogic(Thread):
     def send_message(self, message: str):
         for player in self.players_and_rules.keys():
             player.send(f'{{"type": "message", "message": "{message}"}}')
+

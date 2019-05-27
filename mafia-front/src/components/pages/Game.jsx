@@ -306,14 +306,15 @@ export default class Game extends Component {
   }
 
   videoHandleTrackEvent = (event, playerId) => {
-    console.log('videoHandleTrackEvent triggered')
-    document.getElementById('video-'.concat(playerId)).srcObject = event.streams[0];
+    console.log('videoHandleTrackEvent triggered');
+    if (document.getElementById('video-'.concat(playerId)))
+      document.getElementById('video-'.concat(playerId)).srcObject = event.streams[0];
   }
 
   videoEndVideoStreaming = (playerId) => {
     let playerVideo = document.getElementById("video-" + playerId);
   
-    if (playerVideo.srcObject) {
+    if (playerVideo && playerVideo.srcObject) {
       playerVideo.srcObject.getTracks().forEach(track => track.stop());
     }
     
@@ -361,6 +362,16 @@ export default class Game extends Component {
     console.log(this.peerConnections)
   }
 
+  getUserNameSelect() {
+    let result = [];
+    let players = this.state.playerNames;
+    for (let player_index = 0; player_index < players.length; player_index++) {
+      if (players[player_index] !== 'loading')
+        result.push(<option value={players[player_index]}>{players[player_index]}</option>)
+    }
+    return result
+  }
+
   render() {
     if (this.state.playerNames === undefined)
     {
@@ -376,11 +387,6 @@ export default class Game extends Component {
                      PulseLoader, ReactSpinners, RingLoader, RiseLoader,
                      RotateLoader, ScaleLoader, SyncLoader]
     const randomLoader = loaders[Math.floor(Math.abs(Math.random() * 10)) % loaders.length]
-
-    // window.history.pushState(null, null, window.location.href);
-    // window.onpopstate = function () {
-    //     window.history.go(1);
-    // };
 
     console.log(this.getIndex(this.playerId))
     console.log(this.state.playerIds)
@@ -408,73 +414,18 @@ export default class Game extends Component {
           <div className='col s6'>
             <div className='card center'>
               <span className="card-title">
-                <div style={(() => {
-                  if (this.state.gameState !== 'inhabitant vote') return {display: 'none'}; else return {}
-                })()}>
-                  <div className="input-field">
-                    <select id='select_inhabitant'>
-                      {(() => {
-                        let result = []
-                        let players = this.state.playerNames
-                        for (let player_index = 0; player_index < players.length; player_index++) {
-                          result.push(<option value={players[player_index]}>{players[player_index]}</option>)
-                        }
-                        return result
-                      })()}
-                    </select>
-                  </div>
-                  <button value='vote' className="btn" onClick={() => {
-                    let select = document.getElementsByClassName('select_inhabitant')[0]
-                    let selectedUser = select.option[select.selectedIndex].value
-                    let data = {type: 'inhabitant vote', player: selectedUser}
-                    this.socket.send(JSON.stringify(data))
-                    return false;
-                  }}>vote</button>
-                </div>
-                <div style={(() => {
-                  if (this.state.gameState !== 'mafia vote') return {display: 'none'}; else return {}
-                })()}>
-                  <div className="input-field">
-                    <select className='select' name='select'>
-                      {(() => {
-                        let result = []
-                        let players = this.state.playerNames
-                        let mafias = this.state.mafias
-                        if (mafias === undefined || players === undefined)
-                          return
-                        for (let player_index = 0; player_index < players.length; player_index++) {
-                          let is_mafia = false;
-                          for (let mafia_index = 0; mafia_index < mafias.length; mafia_index++)
-                            if (players[player_index] === mafias[mafia_index]) {
-                              is_mafia = true
-                              break
-                            }
-                          if (!is_mafia)
-                            result.push(<option value={players[player_index]}>${players[player_index]}</option>)
-                        }
-                        return result
-                      })()}
-                    </select>
-                  </div>
-                  <button value='vote' className="btn" onClick={() => {
-                    let select = document.getElementsByClassName('select')[0]
-                    let selectedUser = select.option[select.selectedIndex].value
-                    let data = {type: 'mafia vote', player: selectedUser}
-                    this.socket.send(JSON.stringify(data))
-                  }}>vote</button>
-                </div>
                 {this.state.gameState}
               </span>
+              {
+                // ТУТ НУЖНО ДОБАВИТЬ СЕЛЕКТ, КОТОРЫЙ ВЫВОДИТ ВСЕХ ИГРОКОВ, ЧТО НЕ LOADIN.
+                // ЕСЛИ this.state.gameState ==  'mafia vote' ТО РЕНДЕРІТЬ this.state.mafias
+              }
               <div style={{display: 'flex', justifyContent: 'center'}}>
                 {React.createElement(randomLoader, {
                   size: 20, sizeUnit: 'px', color:'#1dbc98', loading: this.state.isLoading
                 })}
               </div>
               <div className='card-content'>
-                <p>Alert</p>
-                <p>Info</p>
-                <p>Other functionality</p>
-                <button className='btn waves-effect waves-light' onClick={this.testGetPeers}>Get peers</button>
               </div>
             </div>
           </div>
