@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 
-import 'materialize-css/dist/css/materialize.min.css'
-import 'materialize-css/dist/js/materialize'
+// import 'materialize-css/dist/css/materialize.min.css'
+// import 'materialize-css/dist/js/materialize'
 
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'

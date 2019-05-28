@@ -44,7 +44,7 @@ export default class Game extends Component {
     mafias: undefined
   }
 
-  socket = undefined
+  socket = undefined;
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
     return true
@@ -362,16 +362,6 @@ export default class Game extends Component {
     console.log(this.peerConnections)
   }
 
-  getUserNameSelect() {
-    let result = [];
-    let players = this.state.playerNames;
-    for (let player_index = 0; player_index < players.length; player_index++) {
-      if (players[player_index] !== 'loading')
-        result.push(<option value={players[player_index]}>{players[player_index]}</option>)
-    }
-    return result
-  }
-
   render() {
     if (this.state.playerNames === undefined)
     {
@@ -390,6 +380,32 @@ export default class Game extends Component {
 
     console.log(this.getIndex(this.playerId))
     console.log(this.state.playerIds)
+
+    let players = undefined;
+    if (this.state.gameState === 'mafia vote')
+    {
+      players = this.state.playerNames.filter(player => {
+        for (let i = 0; i < this.state.mafias.length; i++)
+        {
+          if (player === this.state.mafias[i])
+            return false;
+        }
+        return true;
+      })
+    } else players = this.state.playerNames;
+
+    let button = undefined;
+    if (this.state.gameState === 'mafia vote' || this.state.gameState === 'inhabitant vote')
+    {
+      button = <input type="button" onClick={(e)=> {
+        let response = {
+         type: this.state.gameState,
+         player: document.getElementsByTagName('select')[0].value,
+         token: this.state.token
+        };
+        this.socket.send(JSON.stringify(response))
+      }} value="Vote"/>
+    } else button = <div></div>
 
     return (
       <div className='container'>
@@ -413,13 +429,24 @@ export default class Game extends Component {
           </div>
           <div className='col s6'>
             <div className='card center'>
+              <select>
+              {
+                players.filter(player => {
+                  return player !== 'loading'
+                }).map(
+                    player => {
+                      console.log(player);
+                      return <option value={player}>{player}</option>
+                    }
+                )
+              }
+              </select>
+              {
+                button
+              }
               <span className="card-title">
                 {this.state.gameState}
               </span>
-              {
-                // ТУТ НУЖНО ДОБАВИТЬ СЕЛЕКТ, КОТОРЫЙ ВЫВОДИТ ВСЕХ ИГРОКОВ, ЧТО НЕ LOADIN.
-                // ЕСЛИ this.state.gameState ==  'mafia vote' ТО РЕНДЕРІТЬ this.state.mafias
-              }
               <div style={{display: 'flex', justifyContent: 'center'}}>
                 {React.createElement(randomLoader, {
                   size: 20, sizeUnit: 'px', color:'#1dbc98', loading: this.state.isLoading
